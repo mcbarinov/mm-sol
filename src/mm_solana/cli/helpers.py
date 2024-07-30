@@ -1,0 +1,83 @@
+import importlib.metadata
+import os
+import tomllib
+from collections.abc import Callable
+from typing import TypeVar
+
+import click
+import yaml
+from click import Context
+from jinja2 import Environment, Template, TemplateSyntaxError, meta
+from mm_std import print_console
+from pydantic import BaseModel, ValidationError, field_validator
+
+_jinja_env = Environment(autoescape=True)
+
+
+class BaseCmdConfig(BaseModel):
+    @field_validator("*", mode="before")
+    def env_template_validator(cls, v: object) -> object:
+        return env_validator(v)
+
+    class Config:
+        extra = "forbid"
+
+
+def env_validator(v: object) -> object:
+    if isinstance(v, str):
+        try:
+            ast = _jinja_env.parse(v)
+            envs = meta.find_undeclared_variables(ast)
+            if envs:
+                data = {}
+                for env in envs:
+                    if not os.getenv(env):
+                        click.secho(f"can't get environment variable {env}", err=True, fg="red")
+                        exit(1)
+                    data[env] = os.getenv(env)
+                template = Template(v)
+                return template.render(data)
+        except TemplateSyntaxError as err:
+            click.secho(f"jinja syntax error: {err!s}", err=True, fg="red")
+            click.secho(v)
+            exit(1)
+    return v
+
+
+ConfigImpl = TypeVar("ConfigImpl")  # the variable return type
+
+
+def parse_config(ctx: Context, config_path: str, config_cls: Callable[..., ConfigImpl]) -> ConfigImpl:
+    file_data = read_config_file_or_exit(config_path)
+    try:
+        if ctx.obj["nodes"]:
+            if "nodes" in file_data:
+                file_data["nodes"] = ctx.obj["nodes"]
+            elif "node" in file_data:
+                file_data["node"] = ctx.obj["nodes"][0]
+        return config_cls(**file_data)
+
+    except ValidationError as err:
+        click.secho(str(err), err=True, fg="red")
+        exit(1)
+
+
+def read_config_file_or_exit(file_path: str) -> dict[str, object]:
+    try:
+        with open(file_path, "rb") as f:
+            if file_path.endswith(".toml"):
+                return tomllib.load(f)
+            return yaml.full_load(f)  # type:ignore[no-any-return]
+    except Exception as err:
+        click.secho(f"can't parse config file: {err!s}", fg="red")
+        exit(1)
+
+
+def print_config_and_exit(ctx: Context, config: BaseCmdConfig) -> None:
+    if ctx.obj["config"]:
+        print_console(config.dict(), print_json=True)
+        exit(0)
+
+
+def get_version() -> str:
+    return importlib.metadata.version("mm-solana")
