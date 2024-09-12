@@ -1,15 +1,14 @@
 from typing import Any
 
 from mm_std import Err, Ok, Result, hr
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 DEFAULT_MAINNET_RPC = "https://api.mainnet-beta.solana.com"
 DEFAULT_TESTNET_RPC = "https://api.testnet.solana.com"
 
 
 class EpochInfo(BaseModel):
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
     epoch: int
     absolute_slot: int = Field(..., alias="absoluteSlot")

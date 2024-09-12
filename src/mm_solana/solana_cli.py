@@ -6,7 +6,7 @@ from typing import Literal
 
 import pydash
 from mm_std import CommandResult, Err, Ok, Result, run_command, run_ssh_command
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ValidatorInfo(BaseModel):
@@ -32,6 +32,8 @@ class StakeAccount(BaseModel):
 
 
 class Stake(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     stake_address: str = Field(..., alias="stakePubkey")
     withdrawer_address: str = Field(..., alias="withdrawer")
     vote_address: str | None = Field(None, alias="delegatedVoteAccountAddress")
@@ -44,9 +46,6 @@ class Stake(BaseModel):
     def from_lamports_to_sol(cls, v: int | None) -> float | None:
         if v:
             return v / 1_000_000_000
-
-    class Config:
-        populate_by_name = True
 
 
 def get_balance(

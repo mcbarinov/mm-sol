@@ -9,7 +9,7 @@ import yaml
 from click import Context
 from jinja2 import Environment, Template, TemplateSyntaxError, meta
 from mm_std import print_console
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 _jinja_env = Environment(autoescape=True)
 
@@ -19,8 +19,7 @@ class BaseCmdConfig(BaseModel):
     def env_template_validator(cls, v: object) -> object:
         return env_validator(v)
 
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
 
 def env_validator(v: object) -> object:
@@ -75,7 +74,7 @@ def read_config_file_or_exit(file_path: str) -> dict[str, object]:
 
 def print_config_and_exit(ctx: Context, config: BaseCmdConfig) -> None:
     if ctx.obj["config"]:
-        print_console(config.dict(), print_json=True)
+        print_console(config.model_dump(), print_json=True)
         exit(0)
 
 

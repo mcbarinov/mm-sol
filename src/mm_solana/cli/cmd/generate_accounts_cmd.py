@@ -1,6 +1,7 @@
 import click
-from mm_solana.account import generate_account, get_private_key_arr_str
 from mm_std import print_console
+
+from mm_solana.account import generate_account, get_private_key_arr_str
 
 
 @click.command(name="generate-accounts", help="Generate new accounts")

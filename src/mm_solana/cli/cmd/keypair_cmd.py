@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import click
+from mm_std import print_console
+
 from mm_solana.account import (
     get_private_key_arr_str,
     get_private_key_base58,
     get_public_key,
 )
-from mm_std import print_console
 
 
 @click.command(name="keypair", help="Print public, private_base58, private_arr by a private key")
