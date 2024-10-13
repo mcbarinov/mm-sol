@@ -20,9 +20,9 @@ def get_node(nodes: str | list[str] | None = None) -> str:
 
 def get_proxy(proxies: str | list[str] | None) -> str | None:
     match proxies:
+        case [] | None:
+            return None
         case list():
             return random.choice(proxies)
-        case None:
-            return None
         case _:
             return proxies

@@ -14,3 +14,7 @@ def test_get_node():
     assert utils.get_node("n1") == "n1"
     res = utils.get_node(["n1", "n2"])
     assert res == "n1" or res == "n2"
+
+
+def test_get_proxy():
+    assert utils.get_proxy([]) is None
