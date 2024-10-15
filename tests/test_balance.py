@@ -1,6 +1,6 @@
-from mm_solana.balance import sol_balance
+from mm_solana.balance import get_balance
 
 
-def test_sol_balance(mainnet_node, usdt_owner_address):
-    res = sol_balance(address=usdt_owner_address, nodes=mainnet_node)
+def test_get_balance(mainnet_node, usdt_owner_address, random_proxy):
+    res = get_balance(mainnet_node, usdt_owner_address, proxy=random_proxy)
     assert res.unwrap() > 10

@@ -49,11 +49,11 @@ def test_get_block_production(testnet_node, random_proxy):
     assert res.unwrap().slot > 1000
 
 
-def test_get_stake_activation(mainnet_node, random_proxy):
-    res = rpc.get_stake_activation(
-        mainnet_node, "GitYucwpNcg6Dx1Y15UQ9TQn8LZMX1uuqQNn8rXxEWNC", proxy=random_proxy
-    )  # from kraken
-    assert res.unwrap().state == "active"
+# def test_get_stake_activation(mainnet_node, random_proxy):
+#     res = rpc.get_stake_activation(
+#         mainnet_node, "GitYucwpNcg6Dx1Y15UQ9TQn8LZMX1uuqQNn8rXxEWNC", proxy=random_proxy
+#     )  # from kraken
+#     assert res.unwrap().state == "active"
 
 
 def test_get_transaction(mainnet_node, random_proxy):

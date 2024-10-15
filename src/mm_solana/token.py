@@ -6,6 +6,8 @@ from solana.rpc.types import TokenAccountOpts
 from solders.pubkey import Pubkey
 
 from mm_solana.client import get_client
+from mm_solana.types import Nodes, Proxies
+from mm_solana.utils import get_node, get_proxy
 
 
 def get_balance(
@@ -46,6 +48,25 @@ def get_balance(
         return Err(e)
 
 
+def get_balance_with_retries(
+    nodes: Nodes,
+    owner_address: str,
+    token_mint_address: str,
+    retries: int,
+    token_account: str | None = None,
+    timeout: float = 10,
+    proxies: Proxies = None,
+) -> Result[int]:
+    res: Result[int] = Err("not started yet")
+    for _ in range(retries):
+        res = get_balance(
+            get_node(nodes), owner_address, token_mint_address, token_account, timeout=timeout, proxy=get_proxy(proxies)
+        )
+        if res.is_ok():
+            return res
+    return res
+
+
 def get_decimals(node: str, token_mint_address: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
     try:
         with get_client(node, proxy=proxy, timeout=timeout) as client:
@@ -53,6 +74,17 @@ def get_decimals(node: str, token_mint_address: str, timeout: float = 10, proxy:
             return Ok(res.value.decimals)
     except Exception as e:
         return Err(e)
+
+
+def get_decimals_with_retries(
+    nodes: Nodes, token_mint_address: str, retries: int, timeout: float = 10, proxies: Proxies = None
+) -> Result[int]:
+    res: Result[int] = Err("not started yet")
+    for _ in range(retries):
+        res = get_decimals(get_node(nodes), token_mint_address, timeout=timeout, proxy=get_proxy(proxies))
+        if res.is_ok():
+            return res
+    return res
 
 
 # def transfer_to_wallet_address(

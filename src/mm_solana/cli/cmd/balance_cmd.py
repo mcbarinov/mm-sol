@@ -8,6 +8,7 @@ from pydantic import StrictStr, field_validator
 from mm_solana import balance, utils
 from mm_solana.cli import helpers
 from mm_solana.cli.helpers import BaseCmdConfig
+from mm_solana.token import get_balance_with_retries
 
 
 class Config(BaseCmdConfig):
@@ -47,11 +48,11 @@ def _get_token_balances(token: str, accounts: list[str], nodes: list[str]) -> di
     result = {}
     for account in accounts:
         # result[account] = _get_token_balance(token, account, nodes)
-        result[account] = balance.token_balance(
-            token_mint_address=token,
-            wallet_address=account,
+        result[account] = get_balance_with_retries(
             nodes=nodes,
-            attempts=3,
+            owner_address=account,
+            token_mint_address=token,
+            retries=3,
         ).ok_or_none()
     return result
 
@@ -59,6 +60,6 @@ def _get_token_balances(token: str, accounts: list[str], nodes: list[str]) -> di
 def _get_sol_balances(accounts: list[str], nodes: list[str]) -> dict[str, Decimal | None]:
     result = {}
     for account in accounts:
-        res = balance.sol_balance(address=account, nodes=nodes)
+        res = balance.get_balance_with_retries(nodes=nodes, address=account, retries=3)
         result[account] = utils.lamports_to_sol(res.unwrap(), ndigits=2) if res.is_ok() else None
     return result
