@@ -2,13 +2,12 @@ import random
 from decimal import Decimal
 from typing import Any
 
-import click
-from click import Context
-from mm_std import print_console, str_to_list
+from mm_std import print_console, print_json, str_to_list
 from pydantic import StrictStr, field_validator
 
 from mm_solana import balance, utils
-from mm_solana.cli.helpers import BaseCmdConfig, parse_config, print_config_and_exit
+from mm_solana.cli import helpers
+from mm_solana.cli.helpers import BaseCmdConfig
 
 
 class Config(BaseCmdConfig):
@@ -25,12 +24,14 @@ class Config(BaseCmdConfig):
         return random.choice(self.nodes)
 
 
-@click.command(name="balance", help="Print SOL and tokens balances")
-@click.argument("config_path", type=click.Path(exists=True))
-@click.pass_context
-def cli(ctx: Context, config_path: str) -> None:
-    config = parse_config(ctx, config_path, Config)
-    print_config_and_exit(ctx, config)
+def run(config_path: str, print_config: bool) -> None:
+    config = helpers.read_config(Config, config_path)
+    if print_config:
+        print_json(config.model_dump())
+        exit(0)
+
+    # config = parse_config(ctx, config_path, Config)
+    # print_config_and_exit(ctx, config)
     result: dict[str, Any] = {"sol": _get_sol_balances(config.accounts, config.nodes)}
     result["sol_sum"] = sum([v for v in result["sol"].values() if v is not None])
 

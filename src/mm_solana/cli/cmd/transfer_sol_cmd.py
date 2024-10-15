@@ -1,12 +1,11 @@
 import random
 from decimal import Decimal
 
-import click
-from click import Context
-from mm_std import print_console, str_to_list
+from mm_std import print_console, print_json, str_to_list
 from pydantic import StrictStr, field_validator
 
-from mm_solana.cli.helpers import BaseCmdConfig, parse_config, print_config_and_exit
+from mm_solana.cli import helpers
+from mm_solana.cli.helpers import BaseCmdConfig
 from mm_solana.transfer import transfer_sol
 
 
@@ -26,12 +25,12 @@ class Config(BaseCmdConfig):
         return random.choice(self.nodes)
 
 
-@click.command(name="transfer-sol", help="Transfer SOL")
-@click.argument("config_path", type=click.Path(exists=True))
-@click.pass_context
-def cli(ctx: Context, config_path: str) -> None:
-    config = parse_config(ctx, config_path, Config)
-    print_config_and_exit(ctx, config)
+def run(config_path: str, print_config: bool) -> None:
+    config = helpers.read_config(Config, config_path)
+    if print_config:
+        print_json(config.model_dump())
+        exit(0)
+
     result = {}
     for recipient in config.recipients:
         res = transfer_sol(

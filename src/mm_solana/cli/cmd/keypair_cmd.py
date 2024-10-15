@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import click
 from mm_std import print_console
 
 from mm_solana.account import (
@@ -10,9 +9,7 @@ from mm_solana.account import (
 )
 
 
-@click.command(name="keypair", help="Print public, private_base58, private_arr by a private key")
-@click.argument("private_key")
-def cli(private_key: str) -> None:
+def run(private_key: str) -> None:
     if (file := Path(private_key)).is_file():
         private_key = file.read_text()
 

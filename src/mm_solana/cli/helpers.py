@@ -1,4 +1,3 @@
-import importlib.metadata
 import os
 import tomllib
 from collections.abc import Callable
@@ -10,6 +9,8 @@ from click import Context
 from jinja2 import Environment, Template, TemplateSyntaxError, meta
 from mm_std import print_console
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
+from rich.console import Console
+from rich.table import Table
 
 _jinja_env = Environment(autoescape=True)
 
@@ -78,5 +79,22 @@ def print_config_and_exit(ctx: Context, config: BaseCmdConfig) -> None:
         exit(0)
 
 
-def get_version() -> str:
-    return importlib.metadata.version("mm-solana")
+T = TypeVar("T")
+
+
+def read_config(config_cls: type[T], config_path: str) -> T:
+    try:
+        with open(config_path) as f:
+            config = config_cls(**yaml.full_load(f))
+            return config
+    except ValidationError as err:
+        table = Table(title="config validation errors")
+        table.add_column("field")
+        table.add_column("message")
+        for e in err.errors():
+            loc = e["loc"]
+            field = str(loc[0]) if len(loc) > 0 else ""
+            table.add_row(field, e["msg"])
+        console = Console()
+        console.print(table)
+        exit(1)

@@ -8,4 +8,4 @@ tokens: |
 
 nodes: |
   https://api.mainnet-beta.solana.com
-  https://rpc.ankr.com/solana
+#  https://rpc.ankr.com/solana
