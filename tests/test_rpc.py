@@ -6,6 +6,11 @@ def test_get_balance(mainnet_node, binance_wallet, random_proxy):
     assert res.unwrap() > 10_000_000
 
 
+def test_get_block_height(mainnet_node, random_proxy):
+    res = rpc.get_block_height(mainnet_node, proxy=random_proxy)
+    assert res.unwrap() > 10_000_000
+
+
 def test_get_slot(testnet_node, random_proxy):
     res = rpc.get_slot(testnet_node, proxy=random_proxy)
     assert res.unwrap() > 10_000

@@ -1,7 +1,5 @@
 import os
 import tomllib
-from collections.abc import Callable
-from typing import TypeVar
 
 import click
 import yaml
@@ -44,24 +42,6 @@ def env_validator(v: object) -> object:
     return v
 
 
-ConfigImpl = TypeVar("ConfigImpl")  # the variable return type
-
-
-def parse_config(ctx: Context, config_path: str, config_cls: Callable[..., ConfigImpl]) -> ConfigImpl:
-    file_data = read_config_file_or_exit(config_path)
-    try:
-        if ctx.obj["nodes"]:
-            if "nodes" in file_data:
-                file_data["nodes"] = ctx.obj["nodes"]
-            elif "node" in file_data:
-                file_data["node"] = ctx.obj["nodes"][0]
-        return config_cls(**file_data)
-
-    except ValidationError as err:
-        click.secho(str(err), err=True, fg="red")
-        exit(1)
-
-
 def read_config_file_or_exit(file_path: str) -> dict[str, object]:
     try:
         with open(file_path, "rb") as f:
@@ -79,10 +59,7 @@ def print_config_and_exit(ctx: Context, config: BaseCmdConfig) -> None:
         exit(0)
 
 
-T = TypeVar("T")
-
-
-def read_config(config_cls: type[T], config_path: str) -> T:
+def read_config[T](config_cls: type[T], config_path: str) -> T:
     try:
         with open(config_path) as f:
             config = config_cls(**yaml.full_load(f))

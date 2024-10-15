@@ -4,7 +4,7 @@ from typing import Annotated
 import typer
 from mm_std import print_plain
 
-from mm_solana.cli.cmd import balance_cmd, example_cmd, generate_accounts_cmd, keypair_cmd, transfer_sol_cmd
+from mm_solana.cli.cmd import balance_cmd, example_cmd, generate_accounts_cmd, keypair_cmd, node_cmd, transfer_sol_cmd
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False, add_completion=False)
 
@@ -53,10 +53,18 @@ def balance_command(
 
 
 @app.command(name="transfer-sol", help="Transfer SOL")
-def cli(
+def transfer_sol_command(
     config_path: str, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
 ) -> None:
     transfer_sol_cmd.run(config_path, print_config)
+
+
+@app.command(name="node", help="Check RPC urls")
+def node_command(
+    urls: Annotated[list[str], typer.Argument()],
+    proxy: Annotated[str | None, typer.Option("--proxy", "-p", help="Proxy")] = None,
+) -> None:
+    node_cmd.run(urls, proxy)
 
 
 if __name__ == "__main_":

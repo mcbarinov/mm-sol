@@ -109,6 +109,11 @@ def get_balance(node: str, address: str, timeout: int = 10, proxy: str | None = 
     return rpc_call(node=node, method="getBalance", params=[address], timeout=timeout, proxy=proxy).and_then(lambda r: r["value"])
 
 
+def get_block_height(node: str, timeout: int = 10, proxy: str | None = None) -> Result[int]:
+    """Returns balance in lamports"""
+    return rpc_call(node=node, method="getBlockHeight", params=[], timeout=timeout, proxy=proxy)
+
+
 def get_slot(node: str, timeout: int = 10, proxy: str | None = None) -> Result[int]:
     return rpc_call(node=node, method="getSlot", params=[], timeout=timeout, proxy=proxy)
 
