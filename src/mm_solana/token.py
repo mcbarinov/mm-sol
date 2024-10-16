@@ -1,5 +1,3 @@
-import traceback
-
 from mm_std import Err, Ok, Result
 from solana.exceptions import SolanaRpcException
 from solana.rpc.types import TokenAccountOpts
@@ -44,7 +42,6 @@ def get_balance(
     except SolanaRpcException as e:
         return Err(e.error_msg)
     except Exception as e:
-        traceback.print_exc()
         return Err(e)
 
 

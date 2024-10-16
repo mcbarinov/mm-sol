@@ -80,3 +80,11 @@ def is_empty_account(*, address: str, node: str | None = None, nodes: list[str] 
         except Exception as e:
             error = str(e)
     return Err(error or "unknown response", data=data)
+
+
+def is_valid_pubkey(pubkey: str) -> bool:
+    try:
+        Pubkey.from_string(pubkey)
+        return True
+    except Exception:
+        return False

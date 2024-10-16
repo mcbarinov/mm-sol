@@ -5,6 +5,7 @@ from mm_solana.account import (
     get_private_key_arr_str,
     get_private_key_base58,
     get_public_key,
+    is_valid_pubkey,
 )
 
 
@@ -120,3 +121,9 @@ def test_get_private_key_arr_str():
     private_key = "2eP4yM63zQxBkoF2Rzzmank9AQ2qiPJExxb7AZ95UPxUpHf8XWgYpy7C5ZNy6zU3jj4nYPD1ijK4EzLLZDwkxZXM"
     res = "[82,64,164,208,0,155,36,201,208,109,43,74,205,156,170,228,146,161,5,178,220,84,195,1,26,161,196,249,242,208,176,186,132,228,144,215,19,161,75,120,161,187,133,19,177,120,198,161,218,5,75,159,126,193,98,18,233,227,129,128,197,153,227,104]"  # noqa
     assert get_private_key_arr_str(private_key) == res
+
+
+def test_is_valid_pubkey():
+    assert is_valid_pubkey("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuan")
+    assert is_valid_pubkey("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuaN")
+    assert not is_valid_pubkey("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuama")
