@@ -36,7 +36,7 @@ def transfer_sol(
                 TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(recipient_address), lamports=lamports),
             )
             tx.add(ti)
-            res = client.send_transaction(tx, acc)
+            res = client.send_legacy_transaction(tx, acc)
             data = res.to_json()
             return Ok(str(res.value), data=data)
         except Exception as e:
