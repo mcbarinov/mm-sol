@@ -3,9 +3,8 @@ from solana.exceptions import SolanaRpcException
 from solana.rpc.types import TokenAccountOpts
 from solders.pubkey import Pubkey
 
-from mm_solana.client import get_client
 from mm_solana.types import Nodes, Proxies
-from mm_solana.utils import get_node, get_proxy
+from mm_solana.utils import get_client, get_node, get_proxy
 
 
 def get_balance(
@@ -17,28 +16,28 @@ def get_balance(
     proxy: str | None = None,
 ) -> Result[int]:
     try:
-        with get_client(node, proxy=proxy, timeout=timeout) as client:
-            if token_account:
-                res_balance = client.get_token_account_balance(Pubkey.from_string(token_account))
-                return Ok(int(res_balance.value.amount))
+        client = get_client(node, proxy=proxy, timeout=timeout)
+        if token_account:
+            res_balance = client.get_token_account_balance(Pubkey.from_string(token_account))
+            return Ok(int(res_balance.value.amount))
 
-            res_accounts = client.get_token_accounts_by_owner(
-                Pubkey.from_string(owner_address),
-                TokenAccountOpts(mint=Pubkey.from_string(token_mint_address)),
-            )
-            if not res_accounts.value:
-                return Err("no_token_accounts")
+        res_accounts = client.get_token_accounts_by_owner(
+            Pubkey.from_string(owner_address),
+            TokenAccountOpts(mint=Pubkey.from_string(token_mint_address)),
+        )
+        if not res_accounts.value:
+            return Err("no_token_accounts")
 
-            token_accounts = [a.pubkey for a in res_accounts.value]
-            balances = []
-            for token_account_ in token_accounts:
-                res = client.get_token_account_balance(token_account_)
-                if res.value:  # type:ignore[truthy-bool]
-                    balances.append(int(res.value.amount))
+        token_accounts = [a.pubkey for a in res_accounts.value]
+        balances = []
+        for token_account_ in token_accounts:
+            res = client.get_token_account_balance(token_account_)
+            if res.value:  # type:ignore[truthy-bool]
+                balances.append(int(res.value.amount))
 
-            if len(balances) > 1:
-                return Err("there are many non empty token accounts, set token_account explicitly")
-            return Ok(balances[0])
+        if len(balances) > 1:
+            return Err("there are many non empty token accounts, set token_account explicitly")
+        return Ok(balances[0])
     except SolanaRpcException as e:
         return Err(e.error_msg)
     except Exception as e:
@@ -66,9 +65,9 @@ def get_balance_with_retries(
 
 def get_decimals(node: str, token_mint_address: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
     try:
-        with get_client(node, proxy=proxy, timeout=timeout) as client:
-            res = client.get_token_supply(Pubkey.from_string(token_mint_address))
-            return Ok(res.value.decimals)
+        client = get_client(node, proxy=proxy, timeout=timeout)
+        res = client.get_token_supply(Pubkey.from_string(token_mint_address))
+        return Ok(res.value.decimals)
     except Exception as e:
         return Err(e)
 

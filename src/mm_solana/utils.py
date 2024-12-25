@@ -1,6 +1,9 @@
 import random
 from decimal import Decimal
 
+from solana.rpc.api import Client
+from solana.rpc.commitment import Commitment
+
 from mm_solana.rpc import DEFAULT_MAINNET_RPC
 from mm_solana.types import Nodes, Proxies
 
@@ -15,13 +18,6 @@ def get_node(nodes: Nodes | None = None) -> str:
     if isinstance(nodes, str):
         return nodes
     return random.choice(nodes)
-    # match nodes:
-    #     case None:
-    #         return DEFAULT_MAINNET_RPC
-    #     case list():
-    #         return random.choice(nodes)
-    #     case _:
-    #         return nodes
 
 
 def get_proxy(proxies: Proxies) -> str | None:
@@ -31,10 +27,12 @@ def get_proxy(proxies: Proxies) -> str | None:
         return proxies
     return random.choice(proxies)
 
-    # match proxies:
-    #     case [] | None:
-    #         return None
-    #     case list():
-    #         return random.choice(proxies)
-    #     case _:
-    #         return proxies
+
+def get_client(
+    endpoint: str,
+    commitment: Commitment | None = None,
+    extra_headers: dict[str, str] | None = None,
+    proxy: str | None = None,
+    timeout: float = 10,
+) -> Client:
+    return Client(endpoint, commitment=commitment, extra_headers=extra_headers, timeout=timeout, proxy=proxy)

@@ -1,4 +1,4 @@
-from mm_solana.client import get_client
+from mm_solana.utils import get_client
 
 
 def test_proxy_client(mainnet_node, proxy):
