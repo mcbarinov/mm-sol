@@ -19,12 +19,11 @@ class ProxyClient(Client):
         extra_headers: dict[str, str] | None = None,
         *,
         proxy: str | None = None,
-        **kwargs: dict[str, object],
     ) -> None:
         """Init API client."""
         super().__init__(commitment)
         self._provider: ProxyHTTPProvider = ProxyHTTPProvider(
-            endpoint=endpoint, timeout=timeout, extra_headers=extra_headers, proxy=proxy, **kwargs
+            endpoint=endpoint, timeout=timeout, extra_headers=extra_headers, proxy=proxy
         )
 
     def __enter__(self) -> Self:
@@ -53,7 +52,7 @@ class ProxyHTTPProvider(HTTPProvider):
         proxy: str | None = None,
         **kwargs: dict[str, object],
     ) -> None:
-        super().__init__(endpoint=endpoint, extra_headers=extra_headers, timeout=timeout, **kwargs)
+        super().__init__(endpoint=endpoint, extra_headers=extra_headers, timeout=timeout)
         self.session = Session(proxy, timeout=timeout)
         self._proxy = proxy
 

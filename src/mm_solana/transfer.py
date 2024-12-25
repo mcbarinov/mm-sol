@@ -4,9 +4,10 @@ import pydash
 from mm_std import Err, Ok, Result
 from pydantic import BaseModel
 from solana.rpc.api import Client
-from solana.transaction import Transaction
+from solders.message import Message
 from solders.pubkey import Pubkey
 from solders.system_program import TransferParams, transfer
+from solders.transaction import Transaction
 
 from mm_solana import rpc, utils
 from mm_solana.account import check_private_key, get_keypair
@@ -31,12 +32,20 @@ def transfer_sol(
     for _ in range(attempts):
         try:
             client = Client(utils.get_node(nodes))
-            tx = Transaction(fee_payer=acc.pubkey())
-            ti = transfer(
-                TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(recipient_address), lamports=lamports),
-            )
-            tx.add(ti)
-            res = client.send_legacy_transaction(tx, acc)
+            # tx = Transaction(from_keypairs=[acc])
+            # ti = transfer(
+            #     TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(recipient_address), lamports=lamports),
+            # )
+            # tx.add(ti)
+            # res = client.send_legacy_transaction(tx, acc)
+            ixns = [
+                transfer(
+                    TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(recipient_address), lamports=lamports)
+                )
+            ]
+            msg = Message(ixns, acc.pubkey())
+            tx = Transaction([acc], msg, client.get_latest_blockhash().value.blockhash)
+            res = client.send_transaction(tx)
             data = res.to_json()
             return Ok(str(res.value), data=data)
         except Exception as e:
