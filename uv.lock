@@ -160,18 +160,6 @@ wheels = [
 ]
 
 [[package]]
-name = "click"
-version = "8.1.7"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/96/d3/f04c7bfcf5c1862a2a5b845c6b2b360488cf47af55dfa79c98f6a6bf98b5/click-8.1.7.tar.gz", hash = "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de", size = 336121 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/2e/d53fa4befbf2cfa713304affc7ca780ce4fc1fd8710527771b58311a3229/click-8.1.7-py3-none-any.whl", hash = "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28", size = 97941 },
-]
-
-[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -352,20 +340,6 @@ socks = [
 ]
 
 [[package]]
-name = "httpx-socks"
-version = "0.10.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "httpcore" },
-    { name = "httpx" },
-    { name = "python-socks" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/26/a4/b93909386d9bfc9d43fbb4a35bc33936ff5e6952d03aba8958af3b7dfada/httpx_socks-0.10.0.tar.gz", hash = "sha256:e232e31174de79cc79ca7174bbc159aabb4b95e0ff5cc2d894d33f6cbe1a1096", size = 93710 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9d/fc/f55d40f5c158c7acf7a45771019c75a41de756c0a9af6139155a322258f8/httpx_socks-0.10.0-py3-none-any.whl", hash = "sha256:9345572cc1b279c0878ab976c654a78d9b4b7b446183ec1e03569a480021addb", size = 12844 },
-]
-
-[[package]]
 name = "hyperframe"
 version = "6.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -490,11 +464,9 @@ version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "base58" },
-    { name = "httpx-socks" },
     { name = "jinja2" },
     { name = "mm-std" },
     { name = "solana" },
-    { name = "typer" },
 ]
 
 [package.dev-dependencies]
@@ -503,7 +475,6 @@ dev = [
     { name = "mypy" },
     { name = "pip-audit" },
     { name = "pytest" },
-    { name = "pytest-httpserver" },
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "types-pyyaml" },
@@ -512,11 +483,9 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "base58", specifier = "~=2.1.1" },
-    { name = "httpx-socks", specifier = ">=0.10.0" },
     { name = "jinja2", specifier = "~=3.1.5" },
     { name = "mm-std", specifier = "~=0.1.9" },
     { name = "solana", specifier = "~=0.36.1" },
-    { name = "typer", specifier = ">=0.15.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -525,7 +494,6 @@ dev = [
     { name = "mypy", specifier = "~=1.14.0" },
     { name = "pip-audit", specifier = "~=2.7.3" },
     { name = "pytest", specifier = "~=8.3.4" },
-    { name = "pytest-httpserver", specifier = "~=1.1.0" },
     { name = "pytest-xdist", specifier = "~=3.6.1" },
     { name = "ruff", specifier = "~=0.8.4" },
     { name = "types-pyyaml", specifier = "~=6.0.12.20241221" },
@@ -820,18 +788,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pytest-httpserver"
-version = "1.1.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "werkzeug" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/12/53/aa5aa8518246848251243a21440f167b812bd40896546061c1fda814c10c/pytest_httpserver-1.1.0.tar.gz", hash = "sha256:6b1cb0199e2ed551b1b94d43f096863bbf6ae5bcd7c75c2c06845e5ce2dc8701", size = 67210 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/29/c5dfce47d5f575e46e2d4a4257cd43cc199a8014f506d14d808e03d6f8cd/pytest_httpserver-1.1.0-py3-none-any.whl", hash = "sha256:7ef88be8ed3354b6784daa3daa75a422370327c634053cefb124903fa8d73a41", size = 20671 },
-]
-
-[[package]]
 name = "pytest-xdist"
 version = "3.6.1"
 source = { registry = "https://pypi.org/simple" }
@@ -851,15 +807,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/bc/57/e84d88dfe0aec03b7a2d4327012c1627ab5f03652216c63d49846d7a6c58/python-dotenv-1.0.1.tar.gz", hash = "sha256:e324ee90a023d808f1959c46bcbc04446a10ced277783dc6ee09987c37ec10ca", size = 39115 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6a/3e/b68c118422ec867fa7ab88444e1274aa40681c606d59ac27de5a5588f082/python_dotenv-1.0.1-py3-none-any.whl", hash = "sha256:f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a", size = 19863 },
-]
-
-[[package]]
-name = "python-socks"
-version = "2.5.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/26/a2/dac502b749429cec85086ad8077e32a77eef100730dbc13b37ad658079fc/python_socks-2.5.3.tar.gz", hash = "sha256:4414b2a24777e439758a5f4644f81509ee634e6893115fe7fd1ec482b4b5c979", size = 201519 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/54/6b907fd2bac4db271902a7a885d4521313b3b754973cfcedb2fb06bf9a00/python_socks-2.5.3-py3-none-any.whl", hash = "sha256:6bc428d0e19f8043e7b8fbc8af33417e690238bd8c9c1e9215871ac18c6136ad", size = 52874 },
 ]
 
 [[package]]
@@ -939,15 +886,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/43/a9/1676ee9106995381e3d34bccac5bb28df70194167337ed4854c20f27c7ba/ruff-0.8.4-py3-none-win32.whl", hash = "sha256:552fb6d861320958ca5e15f28b20a3d071aa83b93caee33a87b471f99a6c0835", size = 8805621 },
     { url = "https://files.pythonhosted.org/packages/10/98/ed6b56a30ee76771c193ff7ceeaf1d2acc98d33a1a27b8479cbdb5c17a23/ruff-0.8.4-py3-none-win_amd64.whl", hash = "sha256:f21a1143776f8656d7f364bd264a9d60f01b7f52243fbe90e7670c0dfe0cf65d", size = 9660086 },
     { url = "https://files.pythonhosted.org/packages/13/9f/026e18ca7d7766783d779dae5e9c656746c6ede36ef73c6d934aaf4a6dec/ruff-0.8.4-py3-none-win_arm64.whl", hash = "sha256:9183dd615d8df50defa8b1d9a074053891ba39025cf5ae88e8bcb52edcc4bf08", size = 9074500 },
-]
-
-[[package]]
-name = "shellingham"
-version = "1.5.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/58/15/8b3609fd3830ef7b27b655beb4b4e9c62313a4e8da8c676e142cc210d58e/shellingham-1.5.4.tar.gz", hash = "sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de", size = 10310 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686", size = 9755 },
 ]
 
 [[package]]
@@ -1044,21 +982,6 @@ wheels = [
 ]
 
 [[package]]
-name = "typer"
-version = "0.15.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "click" },
-    { name = "rich" },
-    { name = "shellingham" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/cb/ce/dca7b219718afd37a0068f4f2530a727c2b74a8b6e8e0c0080a4c0de4fcd/typer-0.15.1.tar.gz", hash = "sha256:a0588c0a7fa68a1978a069818657778f86abe6ff5ea6abf472f940a08bfe4f0a", size = 99789 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d0/cc/0a838ba5ca64dc832aa43f727bd586309846b0ffb2ce52422543e6075e8a/typer-0.15.1-py3-none-any.whl", hash = "sha256:7994fb7b8155b64d3402518560648446072864beefd44aa2dc36972a5972e847", size = 44908 },
-]
-
-[[package]]
 name = "types-pyyaml"
 version = "6.0.12.20241221"
 source = { registry = "https://pypi.org/simple" }
@@ -1101,16 +1024,4 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d8/3b/2ed38e52eed4cf277f9df5f0463a99199a04d9e29c9e227cfafa57bd3993/websockets-11.0.3.tar.gz", hash = "sha256:88fc51d9a26b10fc331be344f1781224a375b78488fc343620184e95a4b27016", size = 104235 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/47/96/9d5749106ff57629b54360664ae7eb9afd8302fad1680ead385383e33746/websockets-11.0.3-py3-none-any.whl", hash = "sha256:6681ba9e7f8f3b19440921e99efbb40fc89f26cd71bf539e45d8c8a25c976dc6", size = 118056 },
-]
-
-[[package]]
-name = "werkzeug"
-version = "3.1.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "markupsafe" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9f/69/83029f1f6300c5fb2471d621ab06f6ec6b3324685a2ce0f9777fd4a8b71e/werkzeug-3.1.3.tar.gz", hash = "sha256:60723ce945c19328679790e3282cc758aa4a6040e4bb330f53d30fa546d44746", size = 806925 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/24/ab44c871b0f07f491e5d2ad12c9bd7358e527510618cb1b803a88e986db1/werkzeug-3.1.3-py3-none-any.whl", hash = "sha256:54b78bf3716d19a65be4fceccc0d1d7b89e608834989dfae50ea87564639213e", size = 224498 },
 ]
