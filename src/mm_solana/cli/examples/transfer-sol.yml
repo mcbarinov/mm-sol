@@ -1,0 +1,8 @@
+from_address: ERB7SPx1XxH35pLu4Lkg9ChPQgsnwJGLZG8RsEE87XNw
+private_key: 3h92ZLyibvqQ9f923s66eN7V1iyG5WRRo3y9nciH4swUiLrkrYRdRM8q3DrtJ9JjTjiU9BT2r2qNzuiCmcZPVvqV
+amount: 1.2 # in SOL
+recipients:
+  - Rjg3K9PPDm1B5bmUP7eXZNfmApgvDPF9SrTh12dLRH9
+
+nodes: |
+  https://api.mainnet-beta.solana.com

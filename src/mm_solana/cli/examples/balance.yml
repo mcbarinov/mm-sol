@@ -1,0 +1,11 @@
+accounts: |
+  5BJ9ViMj4gi2BBX3wbCEJ4p4vpVWKpG6ja2aQP2ACBUv
+  HbSAUDjzpr44fWzf9Ynj3V1jq3wBsgg88N88P4vzeGPX
+
+tokens: |
+  7XtmNSHJDHTZdx2K1S8D529kHsBbt3Civxt6vUHrGxBR
+  65FKbLPtrssmc8aVn9DEBY8VTGB85vsgadrmaW9H4nEB
+
+nodes: |
+  https://api.mainnet-beta.solana.com
+#  https://rpc.ankr.com/solana
