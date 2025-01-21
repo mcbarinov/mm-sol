@@ -1,7 +1,7 @@
 import json
-import os
 import random
 from decimal import Decimal
+from pathlib import Path
 from typing import Literal
 
 import pydash
@@ -26,6 +26,7 @@ class StakeAccount(BaseModel):
     vote: str | None = Field(None, alias="delegatedVoteAccountAddress")
 
     @field_validator("balance")
+    @classmethod
     def from_lamports_to_sol(cls, v: int | None) -> float | None:
         if v:
             return v / 1_000_000_000
@@ -43,6 +44,7 @@ class Stake(BaseModel):
     lock_time: int | None = Field(None, alias="unixTimestamp")
 
     @field_validator("balance", "delegated", "active")
+    @classmethod
     def from_lamports_to_sol(cls, v: int | None) -> float | None:
         if v:
             return v / 1_000_000_000
@@ -126,15 +128,14 @@ def transfer_with_private_key_str(
     timeout: int = 60,
 ) -> Result[str]:
     # make private_key file
-    private_key_path = f"{tmp_dir_path}/solana__{random.randint(1, 10_000_000_000)}.json"
-    with open(private_key_path, "w") as f:
-        f.write(private_key)
+    private_key_path = Path(f"{tmp_dir_path}/solana__{random.randint(1, 10_000_000_000)}.json")
+    private_key_path.write_text(private_key)
 
     try:
         return transfer_with_private_key_file(
             recipient=recipient,
             amount=amount,
-            private_key_path=private_key_path,
+            private_key_path=private_key_path.as_posix(),
             solana_dir=solana_dir,
             url=url,
             ssh_host=ssh_host,
@@ -142,7 +143,7 @@ def transfer_with_private_key_str(
             timeout=timeout,
         )
     finally:
-        os.remove(private_key_path)
+        private_key_path.unlink()
 
 
 def withdraw_from_vote_account(
@@ -158,7 +159,7 @@ def withdraw_from_vote_account(
     timeout: int = 60,
 ) -> Result[str]:
     solana_dir = _solana_dir(solana_dir)
-    cmd = f"{solana_dir}solana withdraw-from-vote-account --keypair {fee_payer_key_path} -u {url} --output json {vote_key_path} {recipient} {amount}"  # pylint: disable=line-too-long # noqa
+    cmd = f"{solana_dir}solana withdraw-from-vote-account --keypair {fee_payer_key_path} -u {url} --output json {vote_key_path} {recipient} {amount}"  # noqa: E501
     res = _exec_cmd(cmd, ssh_host, ssh_key_path, timeout)
     data = {"cmd": cmd, "stdout": res.stdout, "stderr": res.stderr}
     try:
@@ -183,7 +184,7 @@ def get_validators_info(
     try:
         validators = []
         for v in json.loads(res.stdout):
-            validators.append(
+            validators.append(  # noqa: PERF401
                 ValidatorInfo(
                     info_address=v["infoPubkey"],
                     identity_address=v["identityPubkey"],

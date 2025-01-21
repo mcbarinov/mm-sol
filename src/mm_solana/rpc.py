@@ -143,7 +143,7 @@ def get_vote_accounts(node: str, timeout: int = 30, proxy: str | None = None) ->
         data = res.unwrap()
         result: list[VoteAccount] = []
         for a in data["current"]:
-            result.append(
+            result.append(  # noqa: PERF401
                 VoteAccount(
                     validator=a["nodePubkey"],
                     vote=a["votePubkey"],
@@ -159,7 +159,7 @@ def get_vote_accounts(node: str, timeout: int = 30, proxy: str | None = None) ->
                 ),
             )
         for a in data["delinquent"]:
-            result.append(
+            result.append(  # noqa: PERF401
                 VoteAccount(
                     validator=a["nodePubkey"],
                     vote=a["votePubkey"],

@@ -1,4 +1,5 @@
 import random
+from typing import TYPE_CHECKING
 
 import base58
 import pydash
@@ -7,7 +8,9 @@ from pydantic import BaseModel
 from solana.rpc.api import Client
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
-from solders.rpc.responses import GetAccountInfoResp
+
+if TYPE_CHECKING:
+    from solders.rpc.responses import GetAccountInfoResp
 
 
 class NewAccount(BaseModel):
@@ -20,7 +23,7 @@ def generate_account() -> NewAccount:
     keypair = Keypair()
     public_key = str(keypair.pubkey())
     private_key_base58 = base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8")
-    private_key_arr = [x for x in keypair.to_bytes_array()]
+    private_key_arr = list(keypair.to_bytes_array())
     return NewAccount(public_key=public_key, private_key_base58=private_key_base58, private_key_arr=private_key_arr)
 
 
@@ -85,6 +88,6 @@ def is_empty_account(*, address: str, node: str | None = None, nodes: list[str] 
 def is_valid_pubkey(pubkey: str) -> bool:
     try:
         Pubkey.from_string(pubkey)
-        return True
+        return True  # noqa: TRY300
     except Exception:
         return False

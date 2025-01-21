@@ -13,7 +13,7 @@ def test_get_node():
     assert utils.get_node() == DEFAULT_MAINNET_RPC
     assert utils.get_node("n1") == "n1"
     res = utils.get_node(["n1", "n2"])
-    assert res == "n1" or res == "n2"
+    assert res in ("n1", "n2")
 
 
 def test_get_proxy():

@@ -38,11 +38,10 @@ def calc_block_tx_count(node: str, slot: int, timeout: int = 10, proxy: str | No
                     vote_tx_error += 1
                 else:
                     vote_tx_ok += 1
+            elif is_error:
+                non_vote_tx_error += 1
             else:
-                if is_error:
-                    non_vote_tx_error += 1
-                else:
-                    non_vote_tx_ok += 1
+                non_vote_tx_ok += 1
 
         return Ok(
             BlockTxCount(
