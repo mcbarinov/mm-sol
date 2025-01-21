@@ -14,6 +14,7 @@ def get_balance(
     token_account: str | None = None,
     timeout: float = 10,
     proxy: str | None = None,
+    no_token_accounts_return_zero: bool = True,
 ) -> Result[int]:
     try:
         client = get_client(node, proxy=proxy, timeout=timeout)
@@ -25,6 +26,9 @@ def get_balance(
             Pubkey.from_string(owner_address),
             TokenAccountOpts(mint=Pubkey.from_string(token_mint_address)),
         )
+
+        if no_token_accounts_return_zero and not res_accounts.value:
+            return Ok(0)
         if not res_accounts.value:
             return Err("no_token_accounts")
 
@@ -52,11 +56,18 @@ def get_balance_with_retries(
     token_account: str | None = None,
     timeout: float = 10,
     proxies: Proxies = None,
+    no_token_accounts_return_zero: bool = True,
 ) -> Result[int]:
     res: Result[int] = Err("not started yet")
     for _ in range(retries):
         res = get_balance(
-            get_node(nodes), owner_address, token_mint_address, token_account, timeout=timeout, proxy=get_proxy(proxies)
+            get_node(nodes),
+            owner_address,
+            token_mint_address,
+            token_account,
+            timeout=timeout,
+            proxy=get_proxy(proxies),
+            no_token_accounts_return_zero=no_token_accounts_return_zero,
         )
         if res.is_ok():
             return res
