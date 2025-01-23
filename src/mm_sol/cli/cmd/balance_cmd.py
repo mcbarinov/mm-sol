@@ -3,8 +3,8 @@ from decimal import Decimal
 from mm_std import Ok, print_json
 from pydantic import BaseModel, Field
 
-from mm_solana import balance, token
-from mm_solana.cli import cli_utils
+from mm_sol import balance, token
+from mm_sol.cli import cli_utils
 
 
 class HumanReadableBalanceResult(BaseModel):

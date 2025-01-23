@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from mm_solana import utils
-from mm_solana.rpc import DEFAULT_MAINNET_RPC
+from mm_sol import utils
+from mm_sol.rpc import DEFAULT_MAINNET_RPC
 
 
 def test_lamports_to_sol():

@@ -1,4 +1,4 @@
-mm-solana
+mm-sol
 
 Maninnet RPC:
 - https://api.mainnet-beta.solana.com

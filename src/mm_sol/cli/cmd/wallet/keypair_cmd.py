@@ -2,7 +2,7 @@ from pathlib import Path
 
 from mm_std import print_console
 
-from mm_solana.account import (
+from mm_sol.account import (
     get_private_key_arr_str,
     get_private_key_base58,
     get_public_key,

@@ -3,8 +3,8 @@ from solana.exceptions import SolanaRpcException
 from solana.rpc.types import TokenAccountOpts
 from solders.pubkey import Pubkey
 
-from mm_solana.types import Nodes, Proxies
-from mm_solana.utils import get_client, get_node, get_proxy
+from mm_sol.types import Nodes, Proxies
+from mm_sol.utils import get_client, get_node, get_proxy
 
 
 def get_balance(

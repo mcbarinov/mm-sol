@@ -1,4 +1,4 @@
-from mm_solana.balance import get_balance
+from mm_sol.balance import get_balance
 
 
 def test_get_balance(mainnet_node, usdt_owner_address, random_proxy):

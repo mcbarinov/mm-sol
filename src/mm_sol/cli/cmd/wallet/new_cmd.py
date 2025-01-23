@@ -1,6 +1,6 @@
 from mm_std import print_console
 
-from mm_solana.account import generate_account, get_private_key_arr_str
+from mm_sol.account import generate_account, get_private_key_arr_str
 
 
 def run(limit: int, array: bool) -> None:

@@ -1,7 +1,7 @@
 from mm_std import Err, Ok, Result
 from pydantic import BaseModel
 
-from mm_solana.rpc import rpc_call
+from mm_sol.rpc import rpc_call
 
 
 class BlockTxCount(BaseModel):

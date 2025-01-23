@@ -18,7 +18,7 @@ def version_callback(value: bool) -> None:
     if value:
         import importlib.metadata
 
-        print_plain(f"mm-solana: {importlib.metadata.version('mm-solana')}")
+        print_plain(f"mm-sol: {importlib.metadata.version('mm-sol')}")
         raise typer.Exit
 
 
@@ -41,8 +41,8 @@ def example_command(command: Annotated[ConfigExample, typer.Argument()]) -> None
 def balance_command(
     wallet_address: Annotated[str, typer.Argument()],
     token_address: Annotated[str | None, typer.Option("--token", "-t")] = None,
-    rpc_url: Annotated[str, typer.Option("--url", "-u", envvar="MM_SOLANA_RPC_URL")] = "",  # nosec
-    proxies_url: Annotated[str, typer.Option("--proxies-url", envvar="MM_SOLANA_PROXIES_URL")] = "",  # nosec
+    rpc_url: Annotated[str, typer.Option("--url", "-u", envvar="MM_SOL_RPC_URL")] = "",  # nosec
+    proxies_url: Annotated[str, typer.Option("--proxies-url", envvar="MM_SOL_PROXIES_URL")] = "",  # nosec
     lamport: bool = typer.Option(False, "--lamport", "-l", help="Print balances in lamports"),
 ) -> None:
     balance_cmd.run(rpc_url, wallet_address, token_address, lamport, proxies_url)

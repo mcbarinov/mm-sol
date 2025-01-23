@@ -1,4 +1,4 @@
-from mm_solana.account import (
+from mm_sol.account import (
     check_private_key,
     generate_account,
     get_keypair,

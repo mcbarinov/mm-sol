@@ -4,8 +4,9 @@ import pydash
 import pytest
 from dotenv import load_dotenv
 from mm_std import fatal, hr
+from typer.testing import CliRunner
 
-from mm_solana import utils
+from mm_sol import utils
 
 load_dotenv(".env")
 
@@ -55,3 +56,8 @@ def proxies() -> list[str]:
 @pytest.fixture
 def random_proxy(proxies: list[str]) -> str | None:
     return utils.get_proxy(proxies)
+
+
+@pytest.fixture
+def cli_runner() -> CliRunner:
+    return CliRunner()

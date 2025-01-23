@@ -1,6 +1,6 @@
 from mm_std import print_console
 
-from mm_solana import rpc
+from mm_sol import rpc
 
 
 def run(urls: list[str], proxy: str | None) -> None:

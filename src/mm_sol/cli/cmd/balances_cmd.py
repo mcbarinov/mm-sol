@@ -5,9 +5,9 @@ from typing import Any
 from mm_std import BaseConfig, print_console, str_to_list
 from pydantic import StrictStr, field_validator
 
-from mm_solana import balance, utils
-from mm_solana.cli import cli_utils
-from mm_solana.token import get_balance_with_retries
+from mm_sol import balance, utils
+from mm_sol.cli import cli_utils
+from mm_sol.token import get_balance_with_retries
 
 
 class Config(BaseConfig):

@@ -1,8 +1,8 @@
 from mm_std import Err, Result
 
-from mm_solana import rpc
-from mm_solana.types import Nodes, Proxies
-from mm_solana.utils import get_node, get_proxy
+from mm_sol import rpc
+from mm_sol.types import Nodes, Proxies
+from mm_sol.utils import get_node, get_proxy
 
 
 def get_balance(node: str, address: str, timeout: int = 10, proxy: str | None = None) -> Result[int]:

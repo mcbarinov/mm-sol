@@ -4,8 +4,8 @@ from decimal import Decimal
 from solana.rpc.api import Client
 from solana.rpc.commitment import Commitment
 
-from mm_solana.rpc import DEFAULT_MAINNET_RPC
-from mm_solana.types import Nodes, Proxies
+from mm_sol.rpc import DEFAULT_MAINNET_RPC
+from mm_sol.types import Nodes, Proxies
 
 
 def lamports_to_sol(lamports: int, ndigits: int = 4) -> Decimal:

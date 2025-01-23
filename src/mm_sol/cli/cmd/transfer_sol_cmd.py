@@ -4,8 +4,8 @@ from decimal import Decimal
 from mm_std import BaseConfig, print_console, str_to_list
 from pydantic import StrictStr, field_validator
 
-from mm_solana.cli import cli_utils
-from mm_solana.transfer import transfer_sol
+from mm_sol.cli import cli_utils
+from mm_sol.transfer import transfer_sol
 
 
 class Config(BaseConfig):

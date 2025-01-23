@@ -9,8 +9,8 @@ from solders.pubkey import Pubkey
 from solders.system_program import TransferParams, transfer
 from solders.transaction import Transaction
 
-from mm_solana import rpc, utils
-from mm_solana.account import check_private_key, get_keypair
+from mm_sol import rpc, utils
+from mm_sol.account import check_private_key, get_keypair
 
 
 def transfer_sol(

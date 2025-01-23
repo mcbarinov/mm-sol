@@ -1,4 +1,4 @@
-from mm_solana import rpc
+from mm_sol import rpc
 
 
 def test_get_balance(mainnet_node, binance_wallet, random_proxy):

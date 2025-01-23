@@ -1,5 +1,5 @@
-from mm_solana import token
-from mm_solana.account import generate_account
+from mm_sol import token
+from mm_sol.account import generate_account
 
 
 def test_get_balance(mainnet_node, usdt_token_address, usdt_owner_address, random_proxy):
