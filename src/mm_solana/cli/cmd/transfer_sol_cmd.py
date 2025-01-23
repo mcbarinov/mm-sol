@@ -15,7 +15,6 @@ class Config(BaseConfig):
     nodes: list[StrictStr]
     amount: Decimal
 
-    @classmethod
     @field_validator("recipients", "nodes", mode="before")
     def to_list_validator(cls, v: list[str] | str | None) -> list[str]:
         return str_to_list(v)

@@ -1,5 +1,4 @@
 import random
-from typing import TYPE_CHECKING
 
 import base58
 import pydash
@@ -8,9 +7,7 @@ from pydantic import BaseModel
 from solana.rpc.api import Client
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
-
-if TYPE_CHECKING:
-    from solders.rpc.responses import GetAccountInfoResp
+from solders.rpc.responses import GetAccountInfoResp
 
 
 class NewAccount(BaseModel):

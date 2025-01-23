@@ -1,6 +1,6 @@
 [project]
 name = "mm-solana"
-version = "0.2.3"
+version = "0.2.4"
 description = ""
 requires-python = ">=3.12"
 dependencies = [
@@ -35,9 +35,6 @@ warn_no_return = false
 implicit_reexport = true
 strict = true
 exclude = ["^tests/", "^tmp/"]
-#[[tool.mypy.overrides]]
-#module = ["pydash", "click_aliases", "httpx_socks"]
-#ignore_missing_imports = true
 
 
 [tool.ruff]
@@ -46,6 +43,7 @@ target-version = "py313"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "TC", # flake8-type-checking, TYPE_CHECKING is dangerous, for example it doesn't work with pydantic
     "A005", # flake8-builtins: stdlib-module-shadowing
     "ERA001", # eradicate: commented-out-code
     "PT", # flake8-pytest-style
@@ -67,6 +65,8 @@ ignore = [
     "RET503", # flake8-return: implicit-return
     "COM812", # it's used in ruff formatter
 ]
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = ["field_validator"]
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["ANN", "S"]
 [tool.ruff.format]

@@ -4,7 +4,7 @@ from typing import Annotated
 import typer
 from mm_std import print_plain
 
-from .cmd import balance_cmd, example_cmd, node_cmd, transfer_sol_cmd
+from .cmd import balance_cmd, balances_cmd, example_cmd, node_cmd, transfer_sol_cmd
 from .cmd.wallet import keypair_cmd, new_cmd
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False, add_completion=False)
@@ -28,7 +28,7 @@ def main(_version: bool = typer.Option(None, "--version", callback=version_callb
 
 
 class ConfigExample(str, Enum):
-    balance = "balance"
+    balances = "balances"
     transfer_sol = "transfer-sol"
 
 
@@ -37,11 +37,22 @@ def example_command(command: Annotated[ConfigExample, typer.Argument()]) -> None
     example_cmd.run(command.value)
 
 
-@app.command(name="balance", help="Print SOL and tokens balances")
+@app.command(name="balance", help="Gen account balance")
 def balance_command(
+    wallet_address: Annotated[str, typer.Argument()],
+    token_address: Annotated[str | None, typer.Option("--token", "-t")] = None,
+    rpc_url: Annotated[str, typer.Option("--url", "-u", envvar="MM_SOLANA_RPC_URL")] = "",  # nosec
+    proxies_url: Annotated[str, typer.Option("--proxies-url", envvar="MM_SOLANA_PROXIES_URL")] = "",  # nosec
+    lamport: bool = typer.Option(False, "--lamport", "-l", help="Print balances in lamports"),
+) -> None:
+    balance_cmd.run(rpc_url, wallet_address, token_address, lamport, proxies_url)
+
+
+@app.command(name="balances", help="Print SOL and token balances for accounts")
+def balances_command(
     config_path: str, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
 ) -> None:
-    balance_cmd.run(config_path, print_config)
+    balances_cmd.run(config_path, print_config)
 
 
 @app.command(name="transfer-sol", help="Transfer SOL")
