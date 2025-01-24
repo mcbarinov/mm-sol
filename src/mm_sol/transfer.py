@@ -3,7 +3,6 @@ from decimal import Decimal
 import pydash
 from mm_std import Err, Ok, Result
 from pydantic import BaseModel
-from solana.rpc.api import Client
 from solders.message import Message
 from solders.pubkey import Pubkey
 from solders.system_program import TransferParams, transfer
@@ -11,47 +10,62 @@ from solders.transaction import Transaction
 
 from mm_sol import rpc, utils
 from mm_sol.account import check_private_key, get_keypair
+from mm_sol.types import Nodes, Proxies
 
 
 def transfer_sol(
     *,
+    node: str,
     from_address: str,
-    private_key_base58: str,
-    recipient_address: str,
-    amount_sol: Decimal,
-    nodes: str | list[str] | None = None,
-    attempts: int = 3,
+    private_key: str,
+    to_address: str,
+    value: Decimal,
+    proxy: str | None = None,
+    timeout: float = 10,
 ) -> Result[str]:
-    acc = get_keypair(private_key_base58)
-    if not check_private_key(from_address, private_key_base58):
-        raise ValueError("from_address or private_key_base58 is invalid")
+    acc = get_keypair(private_key)
+    if not check_private_key(from_address, private_key):
+        return Err("invalid_private_key")
 
-    lamports = int(amount_sol * 10**9)
-    error = None
+    client = utils.get_client(node, proxy=proxy, timeout=timeout)
     data = None
-    for _ in range(attempts):
-        try:
-            client = Client(utils.get_node(nodes))
-            # tx = Transaction(from_keypairs=[acc])
-            # ti = transfer(
-            #     TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(recipient_address), lamports=lamports),
-            # )
-            # tx.add(ti)
-            # res = client.send_legacy_transaction(tx, acc)
-            ixns = [
-                transfer(
-                    TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(recipient_address), lamports=lamports)
-                )
-            ]
-            msg = Message(ixns, acc.pubkey())
-            tx = Transaction([acc], msg, client.get_latest_blockhash().value.blockhash)
-            res = client.send_transaction(tx)
-            data = res.to_json()
-            return Ok(str(res.value), data=data)
-        except Exception as e:
-            error = e
+    lamports = int(value * 10**9)
+    try:
+        ixns = [transfer(TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(to_address), lamports=lamports))]
+        msg = Message(ixns, acc.pubkey())
+        tx = Transaction([acc], msg, client.get_latest_blockhash().value.blockhash)
+        res = client.send_transaction(tx)
+        data = res.to_json()
+        return Ok(str(res.value), data=data)
+    except Exception as e:
+        return Err(e, data=data)
 
-    return Err(error or "unknown", data=data)
+
+def transfer_sol_with_retries(
+    *,
+    nodes: Nodes,
+    from_address: str,
+    private_key: str,
+    to_address: str,
+    value: Decimal,
+    proxies: Proxies = None,
+    timeout: float = 10,
+    retries: int = 3,
+) -> Result[str]:
+    res: Result[str] = Err("not started yet")
+    for _ in range(retries):
+        res = transfer_sol(
+            node=utils.get_node(nodes),
+            from_address=from_address,
+            private_key=private_key,
+            to_address=to_address,
+            value=value,
+            proxy=utils.get_proxy(proxies),
+            timeout=timeout,
+        )
+        if res.is_ok():
+            return res
+    return res
 
 
 class TransferInfo(BaseModel):

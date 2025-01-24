@@ -25,7 +25,9 @@ def public_rpc_url(url: str | None) -> str:
     return url
 
 
-def load_proxies_from_url(proxies_url: str) -> list[str]:
+def load_proxies_from_url(proxies_url: str | None) -> list[str] | None:
+    if not proxies_url:
+        return None
     try:
         res = hr(proxies_url)
         if res.is_error():
