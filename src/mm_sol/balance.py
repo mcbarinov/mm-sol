@@ -1,7 +1,7 @@
 from mm_std import Err, Result
 
 from mm_sol import rpc
-from mm_sol.types import Nodes, Proxies
+from mm_sol.types_ import Nodes, Proxies
 from mm_sol.utils import get_node, get_proxy
 
 

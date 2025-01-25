@@ -35,8 +35,10 @@ def get_keypair(private_key: str | list[int]) -> Keypair:
     return Keypair.from_bytes(private_key_)
 
 
-def check_private_key(public_key_base58: str, private_key: str | list[int]) -> bool:
-    return str(get_keypair(private_key).pubkey()) == public_key_base58
+def check_private_key(public_key: str | Pubkey, private_key: str | list[int]) -> bool:
+    if isinstance(public_key, str):
+        public_key = Pubkey.from_string(public_key)
+    return get_keypair(private_key).pubkey() == public_key
 
 
 def get_public_key(private_key: str) -> str:

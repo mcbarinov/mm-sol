@@ -1,7 +1,7 @@
 import random
 from decimal import Decimal
 
-from mm_std import BaseConfig, print_console, str_to_list
+from mm_std import BaseConfig, print_json, str_to_list
 from pydantic import StrictStr, field_validator
 
 from mm_sol.cli import cli_utils
@@ -40,4 +40,4 @@ def run(config_path: str, print_config: bool) -> None:
             proxies=cli_utils.load_proxies_from_url(config.proxies_url),
         )
         result[recipient] = res.ok_or_err()
-    print_console(result, print_json=True)
+    print_json(result)

@@ -12,6 +12,36 @@ load_dotenv(".env")
 
 
 @pytest.fixture
+def devnet_address_1() -> str:
+    return os.getenv("DEVNET_ADDRESS_1")
+
+
+@pytest.fixture
+def devnet_address_2() -> str:
+    return os.getenv("DEVNET_ADDRESS_2")
+
+
+@pytest.fixture
+def devnet_address_3() -> str:
+    return os.getenv("DEVNET_ADDRESS_3")
+
+
+@pytest.fixture
+def devnet_private_1() -> str:
+    return os.getenv("DEVNET_PRIVATE_1")
+
+
+@pytest.fixture
+def devnet_private_2() -> str:
+    return os.getenv("DEVNET_PRIVATE_2")
+
+
+@pytest.fixture
+def devnet_private_3() -> str:
+    return os.getenv("DEVNET_PRIVATE_3")
+
+
+@pytest.fixture
 def mainnet_node():
     return os.getenv("MAINNET_NODE")
 

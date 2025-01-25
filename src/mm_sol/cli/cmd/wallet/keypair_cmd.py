@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from mm_std import print_console
+from mm_std import print_json
 
 from mm_sol.account import (
     get_private_key_arr_str,
@@ -16,4 +16,4 @@ def run(private_key: str) -> None:
     public = get_public_key(private_key)
     private_base58 = get_private_key_base58(private_key)
     private_arr = get_private_key_arr_str(private_key)
-    print_console({"public": public, "private_base58": private_base58, "private_arr": private_arr}, print_json=True)
+    print_json({"public": public, "private_base58": private_base58, "private_arr": private_arr})

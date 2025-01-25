@@ -26,7 +26,6 @@ class StakeAccount(BaseModel):
     vote: str | None = Field(None, alias="delegatedVoteAccountAddress")
 
     @field_validator("balance")
-    @classmethod
     def from_lamports_to_sol(cls, v: int | None) -> float | None:
         if v:
             return v / 1_000_000_000

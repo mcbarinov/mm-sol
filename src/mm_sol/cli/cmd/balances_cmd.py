@@ -2,7 +2,7 @@ import random
 from decimal import Decimal
 from typing import Any
 
-from mm_std import BaseConfig, print_console, str_to_list
+from mm_std import BaseConfig, print_json, str_to_list
 from pydantic import StrictStr, field_validator
 
 from mm_sol import balance, utils
@@ -38,7 +38,7 @@ def run(config_path: str, print_config: bool) -> None:
             result[token] = _get_token_balances(token, config.accounts, config.nodes)
             result[token + "_sum"] = sum([v for v in result[token].values() if v is not None])
 
-    print_console(result, print_json=True)
+    print_json(result)
 
 
 def _get_token_balances(token: str, accounts: list[str], nodes: list[str]) -> dict[str, int | None]:
