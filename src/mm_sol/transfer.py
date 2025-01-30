@@ -1,6 +1,8 @@
 from decimal import Decimal
 
+import mm_crypto_utils
 import pydash
+from mm_crypto_utils import Nodes, Proxies
 from mm_std import Err, Ok, Result
 from pydantic import BaseModel
 from solders.message import Message
@@ -12,9 +14,9 @@ from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
 from spl.token.instructions import get_associated_token_address
 
+import mm_sol.converters
 from mm_sol import rpc, utils
 from mm_sol.account import check_private_key, get_keypair
-from mm_sol.types_ import Nodes, Proxies
 
 
 def transfer_token(
@@ -58,7 +60,7 @@ def transfer_token(
         source=from_token_account,
         dest=recipient_token_account,
         owner=from_address,
-        amount=utils.sol_to_lamports(amount),
+        amount=mm_sol.converters.sol_to_lamports(amount),
         decimals=decimals,
     )
     data.append(res)
@@ -82,14 +84,14 @@ def transfer_token_with_retries(
     res: Result[Signature] = Err("not started yet")
     for _ in range(retries):
         res = transfer_token(
-            node=utils.get_node(nodes),
+            node=mm_crypto_utils.random_node(nodes),
             token_mint_address=token_mint_address,
             from_address=from_address,
             private_key=private_key,
             to_address=to_address,
             amount=amount,
             decimals=decimals,
-            proxy=utils.get_proxy(proxies),
+            proxy=mm_crypto_utils.random_proxy(proxies),
             timeout=timeout,
         )
         if res.is_ok():
@@ -103,7 +105,7 @@ def transfer_sol(
     from_address: str,
     private_key: str,
     to_address: str,
-    value: Decimal,
+    lamports: int,
     proxy: str | None = None,
     timeout: float = 10,
 ) -> Result[Signature]:
@@ -113,7 +115,6 @@ def transfer_sol(
 
     client = utils.get_client(node, proxy=proxy, timeout=timeout)
     data = None
-    lamports = int(value * 10**9)
     try:
         ixs = [transfer(TransferParams(from_pubkey=acc.pubkey(), to_pubkey=Pubkey.from_string(to_address), lamports=lamports))]
         msg = Message(ixs, acc.pubkey())
@@ -131,7 +132,7 @@ def transfer_sol_with_retries(
     from_address: str,
     private_key: str,
     to_address: str,
-    value: Decimal,
+    lamports: int,
     proxies: Proxies = None,
     timeout: float = 10,
     retries: int = 3,
@@ -139,12 +140,12 @@ def transfer_sol_with_retries(
     res: Result[Signature] = Err("not started yet")
     for _ in range(retries):
         res = transfer_sol(
-            node=utils.get_node(nodes),
+            node=mm_crypto_utils.random_node(nodes),
             from_address=from_address,
             private_key=private_key,
             to_address=to_address,
-            value=value,
-            proxy=utils.get_proxy(proxies),
+            lamports=lamports,
+            proxy=mm_crypto_utils.random_proxy(proxies),
             timeout=timeout,
         )
         if res.is_ok():

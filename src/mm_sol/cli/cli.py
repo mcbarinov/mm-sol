@@ -4,6 +4,7 @@ from typing import Annotated
 import typer
 from mm_std import print_plain
 
+from . import cli_utils
 from .cmd import balance_cmd, balances_cmd, example_cmd, node_cmd, transfer_sol_cmd
 from .cmd.wallet import keypair_cmd, new_cmd
 
@@ -16,9 +17,7 @@ app.add_typer(wallet_app, name="w", hidden=True)
 
 def version_callback(value: bool) -> None:
     if value:
-        import importlib.metadata
-
-        print_plain(f"mm-sol: {importlib.metadata.version('mm-sol')}")
+        print_plain(f"mm-sol: {cli_utils.get_version()}")
         raise typer.Exit
 
 
@@ -55,11 +54,23 @@ def balances_command(
     balances_cmd.run(config_path, print_config)
 
 
-@app.command(name="transfer-sol", help="Transfer SOL")
+@app.command(name="transfer-sol", help="Transfer SOL from one or many accounts")
 def transfer_sol_command(
-    config_path: str, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
+    config_path: str,
+    print_balances: bool = typer.Option(False, "--balances", "-b", help="Print balances and exit"),
+    print_config: bool = typer.Option(False, "--config", "-c", help="Print config and exit"),
+    emulate: bool = typer.Option(False, "--emulate", "-e", help="Emulate transaction posting"),
+    no_confirmation: bool = typer.Option(False, "--no-confirmation", "-nc", help="Do not wait for confirmation"),
+    debug: bool = typer.Option(False, "--debug", "-d", help="Print debug info"),
 ) -> None:
-    transfer_sol_cmd.run(config_path, print_config)
+    transfer_sol_cmd.run(
+        config_path,
+        print_balances=print_balances,
+        print_config=print_config,
+        debug=debug,
+        no_confirmation=no_confirmation,
+        emulate=emulate,
+    )
 
 
 @app.command(name="node", help="Check RPC urls")

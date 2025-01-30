@@ -43,7 +43,6 @@ class Stake(BaseModel):
     lock_time: int | None = Field(None, alias="unixTimestamp")
 
     @field_validator("balance", "delegated", "active")
-    @classmethod
     def from_lamports_to_sol(cls, v: int | None) -> float | None:
         if v:
             return v / 1_000_000_000
