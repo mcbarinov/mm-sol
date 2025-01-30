@@ -1,13 +1,15 @@
-import sys
+import importlib.metadata
 
-import pydash
-from mm_std import BaseConfig, fatal, hr, print_json
+from mm_crypto_utils import Proxies
+from rich.live import Live
+from rich.table import Table
+
+from mm_sol.balance import get_sol_balance_with_retries
+from mm_sol.converters import lamports_to_sol
 
 
-def print_config_and_exit(exit_: bool, config: BaseConfig, exclude: set[str] | None = None) -> None:
-    if exit_:
-        print_json(config.model_dump(exclude=exclude))
-        sys.exit(0)
+def get_version() -> str:
+    return importlib.metadata.version("mm-sol")
 
 
 def public_rpc_url(url: str | None) -> str:
@@ -25,14 +27,22 @@ def public_rpc_url(url: str | None) -> str:
     return url
 
 
-def load_proxies_from_url(proxies_url: str | None) -> list[str] | None:
-    if not proxies_url:
-        return None
-    try:
-        res = hr(proxies_url)
-        if res.is_error():
-            fatal(f"Can't get proxies: {res.error}")
-        proxies = [p.strip() for p in res.body.splitlines() if p.strip()]
-        return pydash.uniq(proxies)
-    except Exception as err:
-        fatal(f"Can't get  proxies from the url: {err}")
+def print_balances(
+    rpc_nodes: list[str],
+    addresses: list[str],
+    *,
+    proxies: Proxies = None,
+    round_ndigits: int = 5,
+) -> None:
+    table = Table(title="balances")
+    table.add_column("n")
+    table.add_column("address")
+    table.add_column("balance, sol")
+    with Live(table, refresh_per_second=0.5):
+        for count, address in enumerate(addresses):
+            balance = get_sol_balance_with_retries(rpc_nodes, address, proxies=proxies, retries=5).map_or_else(
+                lambda err: err,
+                lambda ok: str(lamports_to_sol(ok, round_ndigits)),
+            )
+            row: list[str] = [str(count), address, balance]
+            table.add_row(*row)

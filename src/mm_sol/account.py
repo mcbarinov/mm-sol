@@ -1,3 +1,4 @@
+import contextlib
 import random
 
 import base58
@@ -84,9 +85,8 @@ def is_empty_account(*, address: str, node: str | None = None, nodes: list[str] 
     return Err(error or "unknown response", data=data)
 
 
-def is_valid_pubkey(pubkey: str) -> bool:
-    try:
+def is_address(pubkey: str) -> bool:
+    with contextlib.suppress(Exception):
         Pubkey.from_string(pubkey)
-        return True  # noqa: TRY300
-    except Exception:
-        return False
+        return True
+    return False

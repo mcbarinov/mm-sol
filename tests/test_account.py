@@ -5,7 +5,7 @@ from mm_sol.account import (
     get_private_key_arr_str,
     get_private_key_base58,
     get_public_key,
-    is_valid_pubkey,
+    is_address,
 )
 
 
@@ -124,6 +124,6 @@ def test_get_private_key_arr_str():
 
 
 def test_is_valid_pubkey():
-    assert is_valid_pubkey("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuan")
-    assert is_valid_pubkey("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuaN")
-    assert not is_valid_pubkey("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuama")
+    assert is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuan")
+    assert is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuaN")
+    assert not is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuama")

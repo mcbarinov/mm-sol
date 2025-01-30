@@ -1,8 +1,10 @@
 from decimal import Decimal
 
+import mm_crypto_utils
 from mm_std import Ok, print_json
 from pydantic import BaseModel, Field
 
+import mm_sol.balance
 from mm_sol import balance, token
 from mm_sol.cli import cli_utils
 
@@ -40,10 +42,10 @@ def run(
     result = BalanceResult()
 
     rpc_url = cli_utils.public_rpc_url(rpc_url)
-    proxies = cli_utils.load_proxies_from_url(proxies_url) if proxies_url else None
+    proxies = mm_crypto_utils.fetch_proxies_or_fatal(proxies_url) if proxies_url else None
 
     # sol balance
-    sol_balance_res = balance.get_balance_with_retries(rpc_url, wallet_address, retries=3, proxies=proxies)
+    sol_balance_res = balance.get_sol_balance_with_retries(rpc_url, wallet_address, retries=3, proxies=proxies)
     if isinstance(sol_balance_res, Ok):
         result.sol_balance = sol_balance_res.ok
     else:
@@ -51,7 +53,7 @@ def run(
 
     # token balance
     if token_address:
-        token_balance_res = token.get_balance_with_retries(
+        token_balance_res = mm_sol.balance.get_token_balance_with_retries(
             nodes=rpc_url,
             owner_address=wallet_address,
             token_mint_address=token_address,

@@ -1,10 +1,10 @@
 [project]
 name = "mm-sol"
-version = "0.2.5"
+version = "0.2.7"
 description = ""
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
-    "mm-std~=0.1.14",
+    "mm-crypto-utils>=0.0.15",
     "solana~=0.36.3",
     "base58~=2.1.1",
     "typer>=0.15.1",
@@ -21,7 +21,7 @@ build-backend = "hatchling.build"
 dev-dependencies = [
     "pytest~=8.3.4",
     "pytest-xdist~=3.6.1",
-    "ruff~=0.9.3",
+    "ruff~=0.9.4",
     "pip-audit~=2.7.3",
     "bandit~=1.8.2",
     "mypy~=1.14.1",

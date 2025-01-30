@@ -1,8 +1,11 @@
-from_address: ERB7SPx1XxH35pLu4Lkg9ChPQgsnwJGLZG8RsEE87XNw
-private_key: 3h92ZLyibvqQ9f923s66eN7V1iyG5WRRo3y9nciH4swUiLrkrYRdRM8q3DrtJ9JjTjiU9BT2r2qNzuiCmcZPVvqV
-amount: 1.2 # in SOL
-recipients:
-  - Rjg3K9PPDm1B5bmUP7eXZNfmApgvDPF9SrTh12dLRH9
+tx_routes: |
+  Bd8CxCTLez2ckVTqEJjuZkWjYFSRbo8fA1qYbd7yFVP9 Eaft9xXzfgbRqsHd65WspoaxTtH7pkznM9YA8tsDKGwj
+  Fc2TRJVCpFZpRz56mFnQETctib1zwFnwHcS7HoQSgUzZ EVJctTWikt29rUXBf49tyQdK87x837HtvpCwqeSjp1Ur
 
+
+private_keys_file: ./path/to/privates.txt
+value: 0.012 sol
+
+proxies_url: https://site.com/api/get-proxies
 nodes: |
-  https://api.mainnet-beta.solana.com
+  https://api.devnet.solana.com

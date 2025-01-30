@@ -1,12 +1,9 @@
 import os
 
-import pydash
+import mm_crypto_utils
 import pytest
 from dotenv import load_dotenv
-from mm_std import fatal, hr
 from typer.testing import CliRunner
-
-from mm_sol import utils
 
 load_dotenv(".env")
 
@@ -75,17 +72,13 @@ def proxy() -> str:
 def proxies() -> list[str]:
     proxies_url = os.getenv("PROXIES_URL")
     if proxies_url:
-        res = hr(proxies_url)
-        if res.is_error():
-            fatal(f"Can't get proxies: {res.error}")
-        proxies = [p.strip() for p in res.body.splitlines() if p.strip()]
-        return pydash.uniq(proxies)
+        return mm_crypto_utils.fetch_proxies_or_fatal(proxies_url)
     return []
 
 
 @pytest.fixture
-def random_proxy(proxies: list[str]) -> str | None:
-    return utils.get_proxy(proxies)
+def random_proxy(proxies) -> str | None:
+    return mm_crypto_utils.random_proxy(proxies)
 
 
 @pytest.fixture
