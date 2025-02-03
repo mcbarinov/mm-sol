@@ -481,19 +481,19 @@ wheels = [
 
 [[package]]
 name = "mm-crypto-utils"
-version = "0.0.15"
+version = "0.0.19"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "mm-std" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/22/50/1bbb9d11d0f799b71ae2a1a6f2d3724288e3d3698f0de5832f8ac86db482/mm_crypto_utils-0.0.15-py3-none-any.whl", hash = "sha256:950f7c11e43c17e9de8574def0e1b5d0a2d21db6027a77c8bbd91bded1be43c7", size = 6121 },
+    { url = "https://files.pythonhosted.org/packages/49/0b/408f661aba09bfc3625652a6cf2ba516874aaaa4f6c9eaaeca450cf70004/mm_crypto_utils-0.0.19-py3-none-any.whl", hash = "sha256:b51184a53aa78cb70253c3c2e0ad56a98a214a854ffb74a4130a4401cd025538", size = 6992 },
 ]
 
 [[package]]
 name = "mm-sol"
-version = "0.2.8"
+version = "0.2.9"
 source = { editable = "." }
 dependencies = [
     { name = "base58" },
@@ -518,7 +518,7 @@ dev = [
 requires-dist = [
     { name = "base58", specifier = "~=2.1.1" },
     { name = "jinja2", specifier = ">=3.1.5" },
-    { name = "mm-crypto-utils", specifier = ">=0.0.15" },
+    { name = "mm-crypto-utils", specifier = ">=0.0.19" },
     { name = "solana", specifier = "~=0.36.3" },
     { name = "typer", specifier = ">=0.15.1" },
 ]

@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import mm_crypto_utils
 import pydash
 from mm_crypto_utils import Nodes, Proxies
@@ -14,7 +12,6 @@ from spl.token.client import Token
 from spl.token.constants import TOKEN_PROGRAM_ID
 from spl.token.instructions import get_associated_token_address
 
-import mm_sol.converters
 from mm_sol import rpc, utils
 from mm_sol.account import check_private_key, get_keypair
 
@@ -26,7 +23,7 @@ def transfer_token(
     from_address: str | Pubkey,
     private_key: str,
     to_address: str | Pubkey,
-    amount: Decimal,
+    amount: int,  # smallest unit
     decimals: int,
     proxy: str | None = None,
     timeout: float = 10,
@@ -60,7 +57,7 @@ def transfer_token(
         source=from_token_account,
         dest=recipient_token_account,
         owner=from_address,
-        amount=mm_sol.converters.sol_to_lamports(amount),
+        amount=amount,
         decimals=decimals,
     )
     data.append(res)
@@ -75,7 +72,7 @@ def transfer_token_with_retries(
     from_address: str | Pubkey,
     private_key: str,
     to_address: str | Pubkey,
-    amount: Decimal,
+    amount: int,  # smallest unit
     decimals: int,
     proxies: Proxies = None,
     timeout: float = 10,

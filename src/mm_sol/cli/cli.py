@@ -29,6 +29,7 @@ def main(_version: bool = typer.Option(None, "--version", callback=version_callb
 class ConfigExample(str, Enum):
     balances = "balances"
     transfer_sol = "transfer-sol"
+    transfer_token = "transfer-token"  # noqa: S105 # nosec
 
 
 @app.command(name="example", help="Print an example of config for a command")

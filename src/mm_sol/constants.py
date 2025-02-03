@@ -1,0 +1,1 @@
+SUFFIX_DECIMALS = {"sol": 9}

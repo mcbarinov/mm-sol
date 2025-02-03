@@ -1,17 +1,32 @@
-from mm_crypto_utils import ConfigValidators
+from collections.abc import Callable
 
-from mm_sol.cli import calcs
+from mm_crypto_utils import AddressToPrivate, ConfigValidators, TxRoute
 
-
-def is_valid_var_lamports(value: str | None, base_name: str = "var", decimals: int | None = None) -> bool:
-    if value is None:
-        return True  # check for None on BaseModel.field type level
-    try:
-        calcs.calc_var_value(value, var_value=123, var_name=base_name, decimals=decimals)
-        return True  # noqa: TRY300
-    except ValueError:
-        return False
+from mm_sol.account import get_public_key, is_address
+from mm_sol.constants import SUFFIX_DECIMALS
 
 
 class Validators(ConfigValidators):
-    pass
+    @staticmethod
+    def sol_address() -> Callable[[str], str]:
+        return ConfigValidators.address(is_address)
+
+    @staticmethod
+    def sol_addresses(unique: bool) -> Callable[[str | list[str] | None], list[str]]:
+        return ConfigValidators.addresses(unique, is_address=is_address)
+
+    @staticmethod
+    def sol_routes() -> Callable[[str | None], list[TxRoute]]:
+        return ConfigValidators.routes(is_address)
+
+    @staticmethod
+    def sol_private_keys() -> Callable[[str | list[str] | None], AddressToPrivate]:
+        return ConfigValidators.private_keys(get_public_key)
+
+    @staticmethod
+    def valid_sol_expression(var_name: str | None = None) -> Callable[[str], str]:
+        return ConfigValidators.valid_calc_int_expression(var_name, SUFFIX_DECIMALS)
+
+    @staticmethod
+    def valid_token_expression(var_name: str | None = None) -> Callable[[str], str]:
+        return ConfigValidators.valid_calc_int_expression(var_name, {"t": 6})

@@ -5,6 +5,10 @@ def lamports_to_sol(lamports: int, ndigits: int = 4) -> Decimal:
     return Decimal(str(round(lamports / 10**9, ndigits=ndigits)))
 
 
+def to_token(smallest_unit_value: int, decimals: int, ndigits: int = 4) -> Decimal:
+    return Decimal(str(round(smallest_unit_value / 10**decimals, ndigits=ndigits)))
+
+
 def sol_to_lamports(sol: Decimal) -> int:
     return int(sol * 10**9)
 

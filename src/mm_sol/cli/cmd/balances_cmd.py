@@ -1,38 +1,26 @@
-import os
 import random
 from decimal import Decimal
-from typing import Annotated, Any, Self
+from typing import Annotated, Any
 
-import mm_crypto_utils
 from mm_crypto_utils import ConfigValidators
 from mm_std import BaseConfig, print_json
-from pydantic import BeforeValidator, Field, model_validator
+from pydantic import BeforeValidator
 
 import mm_sol.converters
 from mm_sol import balance
-from mm_sol.account import is_address
 from mm_sol.balance import get_token_balance_with_retries
+from mm_sol.cli.validators import Validators
 
 
 class Config(BaseConfig):
-    accounts: Annotated[list[str], BeforeValidator(ConfigValidators.addresses(unique=True, is_address=is_address))]
+    accounts: Annotated[list[str], BeforeValidator(Validators.sol_addresses(unique=True))]
+    tokens: Annotated[list[str], BeforeValidator(Validators.sol_addresses(unique=True))]
     nodes: Annotated[list[str], BeforeValidator(ConfigValidators.nodes())]
-    tokens: Annotated[list[str], BeforeValidator(ConfigValidators.addresses(unique=True, is_address=is_address))]
-    proxies_url: str | None = None
-    proxies: list[str] = Field(default_factory=list)
+    proxies: Annotated[list[str], BeforeValidator(Validators.proxies())]
 
     @property
     def random_node(self) -> str:
         return random.choice(self.nodes)
-
-    @model_validator(mode="after")
-    def final_validator(self) -> Self:
-        # fetch proxies from proxies_url
-        proxies_url = self.proxies_url or os.getenv("MM_SOL_PROXIES_URL", "")
-        if proxies_url:
-            self.proxies += mm_crypto_utils.fetch_proxies_or_fatal(proxies_url)
-
-        return self
 
 
 def run(config_path: str, print_config: bool) -> None:

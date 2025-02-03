@@ -1,37 +1,32 @@
-import os
 import sys
 import time
 from pathlib import Path
-from typing import Annotated, Self
+from typing import Annotated
 
 import mm_crypto_utils
 import typer
 from loguru import logger
 from mm_crypto_utils import AddressToPrivate, TxRoute
 from mm_std import BaseConfig, Err, fatal, utc_now
-from pydantic import AfterValidator, BeforeValidator, Field, model_validator
+from pydantic import AfterValidator, BeforeValidator
 
-from mm_sol.account import get_public_key, is_address
+from mm_sol import transfer
 from mm_sol.cli import calcs, cli_utils
 from mm_sol.cli.validators import Validators
+from mm_sol.converters import to_token
 from mm_sol.token import get_decimals_with_retries
 
 
+# noinspection DuplicatedCode
 class Config(BaseConfig):
     nodes: Annotated[list[str], BeforeValidator(Validators.nodes())]
-    routes: Annotated[list[TxRoute], BeforeValidator(Validators.routes(is_address))]
-    routes_from_file: Path | None = None
-    routes_to_file: Path | None = None
-    private_keys: Annotated[
-        AddressToPrivate, Field(default_factory=AddressToPrivate), BeforeValidator(Validators.private_keys(get_public_key))
-    ]
-    private_keys_file: Path | None = None
-    proxies_url: str | None = None
-    proxies: list[str] = Field(default_factory=list)
-    token: Annotated[str, AfterValidator(Validators.address(is_address))]
-    value: str
-    value_min_limit: str | None = None
-    delay: str | None = None  # in seconds
+    routes: Annotated[list[TxRoute], BeforeValidator(Validators.sol_routes())]
+    private_keys: Annotated[AddressToPrivate, BeforeValidator(Validators.sol_private_keys())]
+    proxies: Annotated[list[str], BeforeValidator(Validators.proxies())]
+    token: Annotated[str, AfterValidator(Validators.sol_address())]
+    value: Annotated[str, AfterValidator(Validators.valid_token_expression("balance"))]
+    value_min_limit: Annotated[str | None, AfterValidator(Validators.valid_token_expression())] = None
+    delay: Annotated[str | None, AfterValidator(Validators.valid_calc_decimal_value())] = None  # in seconds
     round_ndigits: int = 5
     log_debug: Annotated[Path | None, BeforeValidator(Validators.log_file())] = None
     log_info: Annotated[Path | None, BeforeValidator(Validators.log_file())] = None
@@ -39,29 +34,6 @@ class Config(BaseConfig):
     @property
     def from_addresses(self) -> list[str]:
         return [r.from_address for r in self.routes]
-
-    @model_validator(mode="after")
-    def final_validator(self) -> Self:
-        # routes_files
-        if self.routes_from_file and self.routes_to_file:
-            self.routes += TxRoute.from_files(self.routes_from_file, self.routes_to_file, is_address)
-        if not self.routes:
-            raise ValueError("routes is empty")
-
-        # load private keys from file
-        if self.private_keys_file:
-            self.private_keys.update(AddressToPrivate.from_file(self.private_keys_file, get_public_key))
-
-        # check all private keys exist
-        if not self.private_keys.contains_all_addresses(self.from_addresses):
-            raise ValueError("private keys are not set for all addresses")
-
-        # fetch proxies from proxies_url
-        proxies_url = self.proxies_url or os.getenv("MM_PROXIES_URL", "")
-        if proxies_url:
-            self.proxies += mm_crypto_utils.fetch_proxies_or_fatal(proxies_url)
-
-        return self
 
 
 def run(
@@ -76,7 +48,7 @@ def run(
     config = Config.read_config_or_exit(config_path)
 
     if print_config:
-        config.print_and_exit({"private_keys", "proxies"})
+        config.print_and_exit({"private_keys"})
 
     mm_crypto_utils.init_logger(debug, config.log_debug, config.log_info)
 
@@ -118,9 +90,9 @@ def _transfer(*, route: TxRoute, config: Config, token_decimals: int, no_confirm
     fee = 5000
 
     # get value
-    value_res = calcs.calc_token_value(
+    value_res = calcs.calc_token_value_for_address(
         nodes=config.nodes,
-        value_str=config.value,
+        value_expression=config.value,
         wallet_address=route.from_address,
         proxies=config.proxies,
         token_mint_address=config.token,
@@ -131,5 +103,44 @@ def _transfer(*, route: TxRoute, config: Config, token_decimals: int, no_confirm
         logger.info(f"{log_prefix}: calc value error, {value_res.err}")
         return
     value = value_res.ok
+    value_t = f"{to_token(value, decimals=token_decimals, ndigits=config.round_ndigits)}t"
 
-    logger.debug(f"{log_prefix}: value={value}, fee={fee}, no_confirmation={no_confirmation}, emulate={emulate}")
+    # value_min_limit
+    if config.value_min_limit:
+        value_min_limit = calcs.calc_token_expression(config.value_min_limit, token_decimals)
+        if value < value_min_limit:
+            logger.info(f"{log_prefix}: value<value_min_limit, value={value_t}")
+            return
+
+    if emulate:
+        logger.info(f"{log_prefix}: emulate, value={value_t}, fee={fee}lamports")
+        return
+
+    logger.debug(f"{log_prefix}: value={to_token(value, decimals=token_decimals)}t, fee={fee}lamports")
+    res = transfer.transfer_token_with_retries(
+        nodes=config.nodes,
+        token_mint_address=config.token,
+        from_address=route.from_address,
+        private_key=config.private_keys[route.from_address],
+        to_address=route.to_address,
+        amount=value,
+        decimals=token_decimals,
+        proxies=config.proxies,
+        retries=3,
+    )
+
+    if isinstance(res, Err):
+        logger.info(f"{log_prefix}: send_error: {res.err}")
+        return
+    signature = res.ok
+
+    if no_confirmation:
+        msg = f"{log_prefix}: sig={signature}, value={value_t}"
+        logger.info(msg)
+    else:
+        logger.debug(f"{log_prefix}: sig={signature}, waiting for confirmation")
+        status = "UNKNOWN"
+        if cli_utils.wait_confirmation(config.nodes, config.proxies, signature, log_prefix):
+            status = "OK"
+        msg = f"{log_prefix}: sig={signature}, value={value_t}, status={status}"
+        logger.info(msg)

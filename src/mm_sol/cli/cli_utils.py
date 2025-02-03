@@ -1,11 +1,16 @@
 import importlib.metadata
+import time
 
-from mm_crypto_utils import Proxies
+import mm_crypto_utils
+from loguru import logger
+from mm_crypto_utils import Nodes, Proxies
 from rich.live import Live
 from rich.table import Table
+from solders.signature import Signature
 
 from mm_sol.balance import get_sol_balance_with_retries
 from mm_sol.converters import lamports_to_sol
+from mm_sol.utils import get_client
 
 
 def get_version() -> str:
@@ -46,3 +51,22 @@ def print_balances(
             )
             row: list[str] = [str(count), address, balance]
             table.add_row(*row)
+
+
+def wait_confirmation(nodes: Nodes, proxies: Proxies, signature: Signature, log_prefix: str) -> bool:
+    count = 0
+    while True:
+        try:
+            node = mm_crypto_utils.random_node(nodes)
+            proxy = mm_crypto_utils.random_proxy(proxies)
+            client = get_client(node, proxy=proxy)
+            res = client.get_transaction(signature)
+            if res.value and res.value.slot:  # check for tx error
+                return True
+        except Exception as e:
+            logger.error(f"{log_prefix}: can't get confirmation, error={e}")
+        time.sleep(1)
+        count += 1
+        if count > 30:
+            logger.error(f"{log_prefix}: can't get confirmation, timeout")
+            return False
