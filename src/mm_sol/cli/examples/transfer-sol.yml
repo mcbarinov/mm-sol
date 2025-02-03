@@ -1,9 +1,0 @@
-routes: |
-  Bd8CxCTLez2ckVTqEJjuZkWjYFSRbo8fA1qYbd7yFVP9 Eaft9xXzfgbRqsHd65WspoaxTtH7pkznM9YA8tsDKGwj
-  Fc2TRJVCpFZpRz56mFnQETctib1zwFnwHcS7HoQSgUzZ EVJctTWikt29rUXBf49tyQdK87x837HtvpCwqeSjp1Ur
-private_keys: "file: ./path/to/privates.txt"
-value: 0.012 sol
-
-proxies: "url: https://site.com/api/get-proxies"
-nodes: |
-  https://api.devnet.solana.com

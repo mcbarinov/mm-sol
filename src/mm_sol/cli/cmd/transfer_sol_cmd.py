@@ -42,7 +42,7 @@ class Config(BaseConfig):
 
 
 def run(
-    config_path: str,
+    config_path: Path,
     *,
     print_balances: bool,
     print_config: bool,
@@ -50,7 +50,7 @@ def run(
     no_confirmation: bool,
     emulate: bool,
 ) -> None:
-    config = Config.read_config_or_exit(config_path)
+    config = Config.read_toml_config_or_exit(config_path)
 
     if print_config:
         config.print_and_exit({"private_keys"})

@@ -1,5 +1,6 @@
 import random
 from decimal import Decimal
+from pathlib import Path
 from typing import Annotated, Any
 
 from mm_crypto_utils import ConfigValidators
@@ -23,8 +24,8 @@ class Config(BaseConfig):
         return random.choice(self.nodes)
 
 
-def run(config_path: str, print_config: bool) -> None:
-    config = Config.read_config_or_exit(config_path)
+def run(config_path: Path, print_config: bool) -> None:
+    config = Config.read_toml_config_or_exit(config_path)
     if print_config:
         config.print_and_exit()
 

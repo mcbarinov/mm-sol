@@ -481,19 +481,19 @@ wheels = [
 
 [[package]]
 name = "mm-crypto-utils"
-version = "0.0.19"
+version = "0.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "mm-std" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/49/0b/408f661aba09bfc3625652a6cf2ba516874aaaa4f6c9eaaeca450cf70004/mm_crypto_utils-0.0.19-py3-none-any.whl", hash = "sha256:b51184a53aa78cb70253c3c2e0ad56a98a214a854ffb74a4130a4401cd025538", size = 6992 },
+    { url = "https://files.pythonhosted.org/packages/0f/e2/9cb771e5af1d555b1fe34a9b8f301b8ae62f2ec3a53b2599232dcb5af221/mm_crypto_utils-0.1.1-py3-none-any.whl", hash = "sha256:5f743d4e2f100e05c932d3a1819115dd37212dece8ed444025263daa0ea88402", size = 7327 },
 ]
 
 [[package]]
 name = "mm-sol"
-version = "0.2.10"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "base58" },
@@ -518,7 +518,7 @@ dev = [
 requires-dist = [
     { name = "base58", specifier = "~=2.1.1" },
     { name = "jinja2", specifier = ">=3.1.5" },
-    { name = "mm-crypto-utils", specifier = ">=0.0.19" },
+    { name = "mm-crypto-utils", specifier = "~=0.1.1" },
     { name = "solana", specifier = "~=0.36.3" },
     { name = "typer", specifier = ">=0.15.1" },
 ]
@@ -536,7 +536,7 @@ dev = [
 
 [[package]]
 name = "mm-std"
-version = "0.1.15"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
@@ -548,7 +548,7 @@ dependencies = [
     { name = "rich" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/b7/6c713eb013fd2d0b2d5dca0f96b1ecb25f464f43f00f172f0c8314c4e82a/mm_std-0.1.15-py3-none-any.whl", hash = "sha256:2138cd0606f85fa3b56172218b19dfdcfb192600a762bcb0b50e13dba3cf75fe", size = 14850 },
+    { url = "https://files.pythonhosted.org/packages/f3/ef/cb423cc357cc116313fcd97e9d0ff673234f5f1725f4a73929ced27b1d00/mm_std-0.2.1-py3-none-any.whl", hash = "sha256:71fa84f2fa897901c925614327123e8d0bc6ae61ff7873479dc9a53889442237", size = 14620 },
 ]
 
 [[package]]

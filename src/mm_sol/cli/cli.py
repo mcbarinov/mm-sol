@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -50,14 +51,14 @@ def balance_command(
 
 @app.command(name="balances", help="Print SOL and token balances for accounts")
 def balances_command(
-    config_path: str, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
+    config_path: Path, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
 ) -> None:
     balances_cmd.run(config_path, print_config)
 
 
 @app.command(name="transfer-sol", help="Transfer SOL from one or many accounts")
 def transfer_sol_command(
-    config_path: str,
+    config_path: Path,
     print_balances: bool = typer.Option(False, "--balances", "-b", help="Print balances and exit"),
     print_config: bool = typer.Option(False, "--config", "-c", help="Print config and exit"),
     emulate: bool = typer.Option(False, "--emulate", "-e", help="Emulate transaction posting"),
@@ -76,7 +77,7 @@ def transfer_sol_command(
 
 @app.command(name="transfer-token", help="Transfer token from one or many accounts")
 def transfer_token_command(
-    config_path: str,
+    config_path: Path,
     print_balances: bool = typer.Option(False, "--balances", "-b", help="Print balances and exit"),
     print_config: bool = typer.Option(False, "--config", "-c", help="Print config and exit"),
     emulate: bool = typer.Option(False, "--emulate", "-e", help="Emulate transaction posting"),

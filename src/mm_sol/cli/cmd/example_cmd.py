@@ -4,5 +4,5 @@ from mm_std import print_plain
 
 
 def run(module: str) -> None:
-    example_file = Path(Path(__file__).parent.absolute(), "../examples", f"{module}.yml")
+    example_file = Path(Path(__file__).parent.absolute(), "../examples", f"{module}.toml")
     print_plain(example_file.read_text())
