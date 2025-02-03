@@ -1,14 +1,14 @@
 import sys
 import time
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Self
 
 import mm_crypto_utils
 import typer
 from loguru import logger
 from mm_crypto_utils import AddressToPrivate, TxRoute
 from mm_std import BaseConfig, Err, fatal, utc_now
-from pydantic import AfterValidator, BeforeValidator
+from pydantic import AfterValidator, BeforeValidator, model_validator
 
 from mm_sol import transfer
 from mm_sol.cli import calcs, cli_utils
@@ -34,6 +34,13 @@ class Config(BaseConfig):
     @property
     def from_addresses(self) -> list[str]:
         return [r.from_address for r in self.routes]
+
+    @model_validator(mode="after")
+    def final_validator(self) -> Self:
+        if not self.private_keys.contains_all_addresses(self.from_addresses):
+            raise ValueError("private keys are not set for all addresses")
+
+        return self
 
 
 def run(
