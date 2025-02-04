@@ -481,19 +481,19 @@ wheels = [
 
 [[package]]
 name = "mm-crypto-utils"
-version = "0.1.1"
+version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "mm-std" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0f/e2/9cb771e5af1d555b1fe34a9b8f301b8ae62f2ec3a53b2599232dcb5af221/mm_crypto_utils-0.1.1-py3-none-any.whl", hash = "sha256:5f743d4e2f100e05c932d3a1819115dd37212dece8ed444025263daa0ea88402", size = 7327 },
+    { url = "https://files.pythonhosted.org/packages/b8/29/fb0a382faadf0ba377747a551e9136c0ad7f64286163de5d0e1e64ae3456/mm_crypto_utils-0.1.4-py3-none-any.whl", hash = "sha256:3b2e011959fa70f3498ea27b0e741d5e3915be771ec1de63729d8bd97b4d0ff4", size = 7733 },
 ]
 
 [[package]]
 name = "mm-sol"
-version = "0.3.0"
+version = "0.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "base58" },
@@ -511,14 +511,13 @@ dev = [
     { name = "pytest" },
     { name = "pytest-xdist" },
     { name = "ruff" },
-    { name = "types-pyyaml" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "base58", specifier = "~=2.1.1" },
     { name = "jinja2", specifier = ">=3.1.5" },
-    { name = "mm-crypto-utils", specifier = "~=0.1.1" },
+    { name = "mm-crypto-utils", specifier = ">=0.1.4" },
     { name = "solana", specifier = "~=0.36.3" },
     { name = "typer", specifier = ">=0.15.1" },
 ]
@@ -531,7 +530,6 @@ dev = [
     { name = "pytest", specifier = "~=8.3.4" },
     { name = "pytest-xdist", specifier = "~=3.6.1" },
     { name = "ruff", specifier = "~=0.9.4" },
-    { name = "types-pyyaml", specifier = "~=6.0.12.20241230" },
 ]
 
 [[package]]
@@ -1040,15 +1038,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/cb/ce/dca7b219718afd37a0068f4f2530a727c2b74a8b6e8e0c0080a4c0de4fcd/typer-0.15.1.tar.gz", hash = "sha256:a0588c0a7fa68a1978a069818657778f86abe6ff5ea6abf472f940a08bfe4f0a", size = 99789 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/cc/0a838ba5ca64dc832aa43f727bd586309846b0ffb2ce52422543e6075e8a/typer-0.15.1-py3-none-any.whl", hash = "sha256:7994fb7b8155b64d3402518560648446072864beefd44aa2dc36972a5972e847", size = 44908 },
-]
-
-[[package]]
-name = "types-pyyaml"
-version = "6.0.12.20241230"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/9a/f9/4d566925bcf9396136c0a2e5dc7e230ff08d86fa011a69888dd184469d80/types_pyyaml-6.0.12.20241230.tar.gz", hash = "sha256:7f07622dbd34bb9c8b264fe860a17e0efcad00d50b5f27e93984909d9363498c", size = 17078 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e8/c1/48474fbead512b70ccdb4f81ba5eb4a58f69d100ba19f17c92c0c4f50ae6/types_PyYAML-6.0.12.20241230-py3-none-any.whl", hash = "sha256:fa4d32565219b68e6dee5f67534c722e53c00d1cfc09c435ef04d7353e1e96e6", size = 20029 },
 ]
 
 [[package]]

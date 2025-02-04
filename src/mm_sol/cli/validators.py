@@ -12,15 +12,15 @@ class Validators(ConfigValidators):
         return ConfigValidators.address(is_address)
 
     @staticmethod
-    def sol_addresses(unique: bool) -> Callable[[str | list[str] | None], list[str]]:
+    def sol_addresses(unique: bool) -> Callable[[str], list[str]]:
         return ConfigValidators.addresses(unique, is_address=is_address)
 
     @staticmethod
-    def sol_routes() -> Callable[[str | None], list[TxRoute]]:
+    def sol_routes() -> Callable[[str], list[TxRoute]]:
         return ConfigValidators.routes(is_address)
 
     @staticmethod
-    def sol_private_keys() -> Callable[[str | list[str] | None], AddressToPrivate]:
+    def sol_private_keys() -> Callable[[str], AddressToPrivate]:
         return ConfigValidators.private_keys(get_public_key)
 
     @staticmethod
