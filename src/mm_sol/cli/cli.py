@@ -110,9 +110,10 @@ def wallet_mnemonic_command(  # nosec
     mnemonic: Annotated[str, typer.Option("--mnemonic", "-m")] = "",
     passphrase: Annotated[str, typer.Option("--passphrase", "-p")] = "",
     derivation_path: Annotated[str, typer.Option("--path")] = PHANTOM_DERIVATION_PATH,
-    limit: int = typer.Option(10, "--limit", "-l"),
+    words: int = typer.Option(12, "--words", "-w", help="Number of mnemonic words"),
+    limit: int = typer.Option(5, "--limit", "-l"),
 ) -> None:
-    mnemonic_cmd.run(mnemonic, passphrase, derivation_path, limit)
+    mnemonic_cmd.run(mnemonic, passphrase, words, derivation_path, limit)
 
 
 @wallet_app.command(name="keypair", help="Print public, private_base58, private_arr by a private key")

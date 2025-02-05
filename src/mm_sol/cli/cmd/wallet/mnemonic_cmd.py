@@ -6,10 +6,10 @@ from mm_std import print_json
 from mm_sol.account import derive_accounts, generate_mnemonic
 
 
-def run(mnemonic: str, passphrase: str, derivation_path: str, limit: int) -> None:  # nosec
+def run(mnemonic: str, passphrase: str, words: int, derivation_path: str, limit: int) -> None:  # nosec
     result: dict[str, Any] = {}
     if not mnemonic:
-        mnemonic = generate_mnemonic()
+        mnemonic = generate_mnemonic(words)
     result["mnemonic"] = mnemonic
     if passphrase:
         result["passphrase"] = passphrase
