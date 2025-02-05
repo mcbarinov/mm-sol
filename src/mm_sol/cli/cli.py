@@ -5,9 +5,11 @@ from typing import Annotated
 import typer
 from mm_std import print_plain
 
+from mm_sol.account import PHANTOM_DERIVATION_PATH
+
 from . import cli_utils
 from .cmd import balance_cmd, balances_cmd, example_cmd, node_cmd, transfer_sol_cmd, transfer_token_cmd
-from .cmd.wallet import keypair_cmd, new_cmd
+from .cmd.wallet import keypair_cmd, mnemonic_cmd
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False, add_completion=False)
 
@@ -102,12 +104,15 @@ def node_command(
     node_cmd.run(urls, proxy)
 
 
-@wallet_app.command(name="new", help="Generate new accounts")
-def generate_accounts_command(
-    limit: Annotated[int, typer.Option("--limit", "-l")] = 5,
-    array: Annotated[bool, typer.Option("--array", help="Print private key in the array format.")] = False,
+@wallet_app.command(name="mnemonic", help="Derive accounts from a mnemonic")
+@wallet_app.command(name="m", hidden=True)
+def wallet_mnemonic_command(  # nosec
+    mnemonic: Annotated[str, typer.Option("--mnemonic", "-m")] = "",
+    passphrase: Annotated[str, typer.Option("--passphrase", "-p")] = "",
+    derivation_path: Annotated[str, typer.Option("--path")] = PHANTOM_DERIVATION_PATH,
+    limit: int = typer.Option(10, "--limit", "-l"),
 ) -> None:
-    new_cmd.run(limit, array)
+    mnemonic_cmd.run(mnemonic, passphrase, derivation_path, limit)
 
 
 @wallet_app.command(name="keypair", help="Print public, private_base58, private_arr by a private key")

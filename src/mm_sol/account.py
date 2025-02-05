@@ -1,20 +1,61 @@
 import contextlib
 import random
+from dataclasses import dataclass
 
 import base58
 import pydash
 from mm_std import Err, Ok, Result
+from mnemonic import Mnemonic
 from pydantic import BaseModel
 from solana.rpc.api import Client
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 from solders.rpc.responses import GetAccountInfoResp
 
+PHANTOM_DERIVATION_PATH = "m/44'/501'/{i}'/0'"
+WORD_STRENGTH = {12: 128, 15: 160, 18: 192, 21: 224, 24: 256}
+
 
 class NewAccount(BaseModel):
     public_key: str
     private_key_base58: str
     private_key_arr: list[int]
+
+
+@dataclass
+class DerivedAccount:
+    index: int
+    path: str
+    address: str
+    private_key: str
+
+
+def generate_mnemonic(num_words: int = 24) -> str:
+    if num_words not in WORD_STRENGTH:
+        raise ValueError(f"num_words must be one of {list(WORD_STRENGTH.keys())}")
+    mnemonic = Mnemonic("english")
+    return mnemonic.generate(strength=WORD_STRENGTH[num_words])
+
+
+def derive_accounts(mnemonic: str, passphrase: str, derivation_path: str, limit: int) -> list[DerivedAccount]:
+    if "{i}" not in derivation_path:
+        raise ValueError("derivation_path must contain {i}, for example: m/44'/501'/{i}'/0'")
+
+    result: list[DerivedAccount] = []
+    seed = Mnemonic.to_seed(mnemonic, passphrase)
+    for i in range(limit):
+        path = derivation_path.replace("{i}", str(i))
+        keypair = Keypair.from_seed_and_derivation_path(seed, path)
+        result.append(
+            DerivedAccount(
+                index=i,
+                path=path,
+                address=str(keypair.pubkey()),
+                private_key=base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8"),
+            )
+        )
+
+    return result
 
 
 def generate_account() -> NewAccount:

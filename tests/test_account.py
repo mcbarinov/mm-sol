@@ -1,6 +1,10 @@
 from mm_sol.account import (
+    PHANTOM_DERIVATION_PATH,
+    DerivedAccount,
     check_private_key,
+    derive_accounts,
     generate_account,
+    generate_mnemonic,
     get_keypair,
     get_private_key_arr_str,
     get_private_key_base58,
@@ -127,3 +131,22 @@ def test_is_valid_pubkey():
     assert is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuan")
     assert is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuaN")
     assert not is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuama")
+
+
+def test_generate_mnemonic():
+    assert len(generate_mnemonic().split()) == 24
+    assert len(generate_mnemonic(12).split()) == 12
+    assert generate_mnemonic() != generate_mnemonic()
+
+
+def test_derive_accounts():
+    mnemonic = "cotton limit tube replace sister flight double muffin health neutral hill maid"
+    passphrase = "my-secret"
+    res = derive_accounts(mnemonic=mnemonic, passphrase=passphrase, derivation_path=PHANTOM_DERIVATION_PATH, limit=10)
+    assert len(res) == 10
+    assert res[2] == DerivedAccount(
+        index=2,
+        path="m/44'/501'/2'/0'",
+        address="Gdfo64rJK6eZBNaN1pRMM6u2aBdpTmuSSzwNNvN8wrbC",
+        private_key="39YAWGyPPQBuzoCFNndZGqwHciLYPajfq3f9L37TxSrryvDB4cHKfJRWWQPx3shWAjojhayhvq8wfnf4fRrpqz2N",
+    )
