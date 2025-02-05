@@ -7,3 +7,4 @@ tokens = """
 65FKbLPtrssmc8aVn9DEBY8VTGB85vsgadrmaW9H4nEB
 """
 nodes = "https://api.mainnet-beta.solana.com"
+# proxies = "env_url: MM_SOL_PROXIES_URL"

@@ -2,10 +2,14 @@ from decimal import Decimal
 
 
 def lamports_to_sol(lamports: int, ndigits: int = 4) -> Decimal:
+    if lamports == 0:
+        return Decimal(0)
     return Decimal(str(round(lamports / 10**9, ndigits=ndigits)))
 
 
 def to_token(smallest_unit_value: int, decimals: int, ndigits: int = 4) -> Decimal:
+    if smallest_unit_value == 0:
+        return Decimal(0)
     return Decimal(str(round(smallest_unit_value / 10**decimals, ndigits=ndigits)))
 
 
