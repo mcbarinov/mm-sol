@@ -1,10 +1,10 @@
 accounts = """
-5BJ9ViMj4gi2BBX3wbCEJ4p4vpVWKpG6ja2aQP2ACBUv
-HbSAUDjzpr44fWzf9Ynj3V1jq3wBsgg88N88P4vzeGPX
+9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM # binance
+61aq585V8cR2sZBeawJFt2NPqmN7zDi1sws4KLs5xHXV # Jupiter cold wallet
 """
 tokens = """
-7XtmNSHJDHTZdx2K1S8D529kHsBbt3Civxt6vUHrGxBR
-65FKbLPtrssmc8aVn9DEBY8VTGB85vsgadrmaW9H4nEB
+EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v # USDC
+JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN # JUP
 """
 nodes = "https://api.mainnet-beta.solana.com"
 # proxies = "env_url: MM_SOL_PROXIES_URL"

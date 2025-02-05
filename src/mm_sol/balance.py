@@ -92,4 +92,7 @@ def get_token_balance_with_retries(
         )
         if res.is_ok():
             return res
+        if isinstance(res, Err) and res.err == "no_token_accounts":
+            return res
+
     return res

@@ -42,13 +42,12 @@ def transfer_token(
 
     recipient_token_account = get_associated_token_address(to_address, token_mint_address, token_program_id=TOKEN_PROGRAM_ID)
     from_token_account = get_associated_token_address(from_address, token_mint_address, token_program_id=TOKEN_PROGRAM_ID)
-
     data: list[object] = []
 
     account_info_res = client.get_account_info(recipient_token_account)
     if account_info_res.value is None:
         if create_token_account_if_not_exists:
-            create_account_res = token_client.create_account(to_address, skip_confirmation=False)
+            create_account_res = token_client.create_associated_token_account(to_address, skip_confirmation=False)
             data.append(create_account_res)
         else:
             return Err("no_token_account")

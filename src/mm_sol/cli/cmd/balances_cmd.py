@@ -5,7 +5,7 @@ from typing import Annotated, Any
 
 from mm_crypto_utils import ConfigValidators
 from mm_std import BaseConfig, Err, fatal, print_json
-from pydantic import BeforeValidator
+from pydantic import BeforeValidator, Field
 
 import mm_sol.converters
 from mm_sol import balance
@@ -18,7 +18,7 @@ class Config(BaseConfig):
     accounts: Annotated[list[str], BeforeValidator(Validators.sol_addresses(unique=True))]
     tokens: Annotated[list[str], BeforeValidator(Validators.sol_addresses(unique=True))]
     nodes: Annotated[list[str], BeforeValidator(ConfigValidators.nodes())]
-    proxies: Annotated[list[str], BeforeValidator(Validators.proxies())]
+    proxies: Annotated[list[str], Field(default_factory=list), BeforeValidator(Validators.proxies())]
 
     @property
     def random_node(self) -> str:

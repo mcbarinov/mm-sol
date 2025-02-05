@@ -7,7 +7,7 @@ import mm_crypto_utils
 from loguru import logger
 from mm_crypto_utils import AddressToPrivate, TxRoute
 from mm_std import BaseConfig, Err, utc_now
-from pydantic import AfterValidator, BeforeValidator, model_validator
+from pydantic import AfterValidator, BeforeValidator, Field, model_validator
 
 from mm_sol import transfer
 from mm_sol.cli import calcs, cli_utils
@@ -21,7 +21,7 @@ class Config(BaseConfig):
     nodes: Annotated[list[str], BeforeValidator(Validators.nodes())]
     routes: Annotated[list[TxRoute], BeforeValidator(Validators.sol_routes())]
     private_keys: Annotated[AddressToPrivate, BeforeValidator(Validators.sol_private_keys())]
-    proxies: Annotated[list[str], BeforeValidator(Validators.proxies())]
+    proxies: Annotated[list[str], Field(default_factory=list), BeforeValidator(Validators.proxies())]
     value: Annotated[str, AfterValidator(Validators.valid_sol_expression("balance"))]
     value_min_limit: Annotated[str | None, AfterValidator(Validators.valid_sol_expression())] = None
     delay: Annotated[str | None, AfterValidator(Validators.valid_calc_decimal_value())] = None  # in seconds
