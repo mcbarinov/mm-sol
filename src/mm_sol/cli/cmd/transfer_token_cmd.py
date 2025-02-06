@@ -4,16 +4,18 @@ from pathlib import Path
 from typing import Annotated, Self
 
 import mm_crypto_utils
-import typer
 from loguru import logger
 from mm_crypto_utils import AddressToPrivate, TxRoute
 from mm_std import BaseConfig, Err, fatal, utc_now
 from pydantic import AfterValidator, BeforeValidator, Field, model_validator
+from rich.live import Live
+from rich.table import Table
 
 from mm_sol import transfer
+from mm_sol.balance import get_sol_balance_with_retries, get_token_balance_with_retries
 from mm_sol.cli import calcs, cli_utils
 from mm_sol.cli.validators import Validators
-from mm_sol.converters import to_token
+from mm_sol.converters import lamports_to_sol, to_token
 from mm_sol.token import get_decimals_with_retries
 
 
@@ -67,8 +69,7 @@ def run(
     logger.debug(f"token decimals={token_decimals}")
 
     if print_balances:
-        # cli_utils.print_balances(config.nodes, config.from_addresses, round_ndigits=config.round_ndigits, proxies=config.proxies) # noqa: E501
-        typer.echo("Not implemented yet")
+        _print_balances(config, token_decimals)
         sys.exit(0)
 
     _run_transfers(config, token_decimals, no_confirmation=no_confirmation, emulate=emulate)
@@ -151,3 +152,37 @@ def _transfer(*, route: TxRoute, config: Config, token_decimals: int, no_confirm
             status = "OK"
         msg = f"{log_prefix}: sig={signature}, value={value_t}, status={status}"
         logger.info(msg)
+
+
+def _print_balances(config: Config, token_decimals: int) -> None:
+    table = Table("n", "from_address", "sol", "t", "to_address", "sol", "t", title="balances")
+    with Live(table, refresh_per_second=0.5):
+        for count, route in enumerate(config.routes):
+            from_sol_balance = _get_sol_balance_str(route.from_address, config)
+            to_sol_balance = _get_sol_balance_str(route.to_address, config)
+            from_t_balance = _get_token_balance_str(route.from_address, config, token_decimals)
+            to_t_balance = _get_token_balance_str(route.to_address, config, token_decimals)
+            row: list[str] = [
+                str(count),
+                route.from_address,
+                from_sol_balance,
+                from_t_balance,
+                route.to_address,
+                to_sol_balance,
+                to_t_balance,
+            ]
+            table.add_row(*row)
+
+
+def _get_sol_balance_str(address: str, config: Config) -> str:
+    return get_sol_balance_with_retries(config.nodes, address, proxies=config.proxies, retries=5).map_or_else(
+        lambda err: err,
+        lambda ok: str(lamports_to_sol(ok, config.round_ndigits)),
+    )
+
+
+def _get_token_balance_str(address: str, config: Config, token_decimals: int) -> str:
+    return get_token_balance_with_retries(config.nodes, address, config.token, proxies=config.proxies, retries=5).map_or_else(
+        lambda err: err,
+        lambda ok: str(to_token(ok, token_decimals, ndigits=config.round_ndigits)),
+    )

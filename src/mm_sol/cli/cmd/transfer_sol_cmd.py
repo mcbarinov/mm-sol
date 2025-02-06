@@ -8,8 +8,11 @@ from loguru import logger
 from mm_crypto_utils import AddressToPrivate, TxRoute
 from mm_std import BaseConfig, Err, utc_now
 from pydantic import AfterValidator, BeforeValidator, Field, model_validator
+from rich.live import Live
+from rich.table import Table
 
 from mm_sol import transfer
+from mm_sol.balance import get_sol_balance_with_retries
 from mm_sol.cli import calcs, cli_utils
 from mm_sol.cli.calcs import calc_sol_expression
 from mm_sol.cli.validators import Validators
@@ -58,7 +61,7 @@ def run(
     mm_crypto_utils.init_logger(debug, config.log_debug, config.log_info)
 
     if print_balances:
-        cli_utils.print_balances(config.nodes, config.from_addresses, round_ndigits=config.round_ndigits, proxies=config.proxies)
+        _print_balances(config)
         sys.exit(0)
 
     _run_transfers(config, no_confirmation=no_confirmation, emulate=emulate)
@@ -137,3 +140,20 @@ def _transfer(*, from_address: str, to_address: str, config: Config, no_confirma
             status = "OK"
         msg = f"{log_prefix}: sig={signature}, value={lamports_to_sol(value, config.round_ndigits)}, status={status}"
         logger.info(msg)
+
+
+def _print_balances(config: Config) -> None:
+    table = Table("n", "from_address", "sol", "to_address", "sol", title="balances")
+    with Live(table, refresh_per_second=0.5):
+        for count, route in enumerate(config.routes):
+            from_balance = _get_sol_balance_str(route.from_address, config)
+            to_balance = _get_sol_balance_str(route.to_address, config)
+            row: list[str] = [str(count), route.from_address, from_balance, route.to_address, to_balance]
+            table.add_row(*row)
+
+
+def _get_sol_balance_str(address: str, config: Config) -> str:
+    return get_sol_balance_with_retries(config.nodes, address, proxies=config.proxies, retries=5).map_or_else(
+        lambda err: err,
+        lambda ok: str(lamports_to_sol(ok, config.round_ndigits)),
+    )
