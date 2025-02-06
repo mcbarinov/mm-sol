@@ -481,19 +481,19 @@ wheels = [
 
 [[package]]
 name = "mm-crypto-utils"
-version = "0.1.4"
+version = "0.1.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "mm-std" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/29/fb0a382faadf0ba377747a551e9136c0ad7f64286163de5d0e1e64ae3456/mm_crypto_utils-0.1.4-py3-none-any.whl", hash = "sha256:3b2e011959fa70f3498ea27b0e741d5e3915be771ec1de63729d8bd97b4d0ff4", size = 7733 },
+    { url = "https://files.pythonhosted.org/packages/2f/81/65963aa5b653b33c69235a9f5cb2d3a0b29d1e985a9325782d9ddad94ec7/mm_crypto_utils-0.1.5-py3-none-any.whl", hash = "sha256:3ee4d35c5f6d2cf6c4d9b192992be75abf8b6afd477528857021f5d958ce5779", size = 7779 },
 ]
 
 [[package]]
 name = "mm-sol"
-version = "0.3.6"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "base58" },
@@ -518,7 +518,7 @@ dev = [
 requires-dist = [
     { name = "base58", specifier = "~=2.1.1" },
     { name = "jinja2", specifier = ">=3.1.5" },
-    { name = "mm-crypto-utils", specifier = ">=0.1.4" },
+    { name = "mm-crypto-utils", specifier = ">=0.1.5" },
     { name = "mnemonic", specifier = "==0.21" },
     { name = "solana", specifier = "~=0.36.3" },
     { name = "typer", specifier = ">=0.15.1" },

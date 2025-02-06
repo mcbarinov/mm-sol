@@ -30,3 +30,7 @@ class Validators(ConfigValidators):
     @staticmethod
     def valid_token_expression(var_name: str | None = None) -> Callable[[str], str]:
         return ConfigValidators.valid_calc_int_expression(var_name, {"t": 6})
+
+    @staticmethod
+    def valid_sol_or_token_expression(var_name: str | None = None) -> Callable[[str], str]:
+        return ConfigValidators.valid_calc_int_expression(var_name, SUFFIX_DECIMALS | {"t": 6})

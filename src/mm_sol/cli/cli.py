@@ -8,12 +8,15 @@ from mm_std import print_plain
 from mm_sol.account import PHANTOM_DERIVATION_PATH
 
 from . import cli_utils
-from .cmd import balance_cmd, balances_cmd, example_cmd, node_cmd, transfer_sol_cmd, transfer_token_cmd
+from .cmd import balance_cmd, balances_cmd, example_cmd, node_cmd, transfer_cmd
+from .cmd.transfer_cmd import TransferCmdParams
 from .cmd.wallet import keypair_cmd, mnemonic_cmd
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False, add_completion=False)
 
-wallet_app = typer.Typer(no_args_is_help=True, help="Wallet commands: generate new accounts, private to address")
+wallet_app = typer.Typer(
+    no_args_is_help=True, help="Wallet-related commands: generate new accounts, derive addresses from private keys, and more"
+)
 app.add_typer(wallet_app, name="wallet")
 app.add_typer(wallet_app, name="w", hidden=True)
 
@@ -31,11 +34,10 @@ def main(_version: bool = typer.Option(None, "--version", callback=version_callb
 
 class ConfigExample(str, Enum):
     balances = "balances"
-    transfer_sol = "transfer-sol"
-    transfer_token = "transfer-token"  # noqa: S105 # nosec
+    transfer = "transfer"
 
 
-@app.command(name="example", help="Print an example of config for a command")
+@app.command(name="example", help="Displays an example configuration for a command")
 def example_command(command: Annotated[ConfigExample, typer.Argument()]) -> None:
     example_cmd.run(command.value)
 
@@ -51,52 +53,37 @@ def balance_command(
     balance_cmd.run(rpc_url, wallet_address, token_address, lamport, proxies_url)
 
 
-@app.command(name="balances", help="Print SOL and token balances for accounts")
+@app.command(name="balances", help="Displays SOL and token balances for multiple accounts")
 def balances_command(
     config_path: Path, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
 ) -> None:
     balances_cmd.run(config_path, print_config)
 
 
-@app.command(name="transfer-sol", help="Transfer SOL from one or many accounts")
-def transfer_sol_command(
+@app.command(name="transfer", help="Transfers SOL or SPL tokens, supporting multiple routes, delays, and expression-based values")
+def transfer_command(
     config_path: Path,
     print_balances: bool = typer.Option(False, "--balances", "-b", help="Print balances and exit"),
     print_config: bool = typer.Option(False, "--config", "-c", help="Print config and exit"),
+    config_verbose: bool = typer.Option(False, "--config-verbose", help="Print config in verbose mode and exit"),
     emulate: bool = typer.Option(False, "--emulate", "-e", help="Emulate transaction posting"),
     no_confirmation: bool = typer.Option(False, "--no-confirmation", "-nc", help="Do not wait for confirmation"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Print debug info"),
 ) -> None:
-    transfer_sol_cmd.run(
-        config_path,
-        print_balances=print_balances,
-        print_config=print_config,
-        debug=debug,
-        no_confirmation=no_confirmation,
-        emulate=emulate,
+    transfer_cmd.run(
+        TransferCmdParams(
+            config_path=config_path,
+            print_balances=print_balances,
+            debug=debug,
+            no_confirmation=no_confirmation,
+            emulate=emulate,
+            print_config_and_exit=print_config or config_verbose,
+            print_config_verbose=config_verbose,
+        )
     )
 
 
-@app.command(name="transfer-token", help="Transfer token from one or many accounts")
-def transfer_token_command(
-    config_path: Path,
-    print_balances: bool = typer.Option(False, "--balances", "-b", help="Print balances and exit"),
-    print_config: bool = typer.Option(False, "--config", "-c", help="Print config and exit"),
-    emulate: bool = typer.Option(False, "--emulate", "-e", help="Emulate transaction posting"),
-    no_confirmation: bool = typer.Option(False, "--no-confirmation", "-nc", help="Do not wait for confirmation"),
-    debug: bool = typer.Option(False, "--debug", "-d", help="Print debug info"),
-) -> None:
-    transfer_token_cmd.run(
-        config_path,
-        print_balances=print_balances,
-        print_config=print_config,
-        debug=debug,
-        no_confirmation=no_confirmation,
-        emulate=emulate,
-    )
-
-
-@app.command(name="node", help="Check RPC urls")
+@app.command(name="node", help="Checks RPC URLs for availability and status")
 def node_command(
     urls: Annotated[list[str], typer.Argument()],
     proxy: Annotated[str | None, typer.Option("--proxy", "-p", help="Proxy")] = None,

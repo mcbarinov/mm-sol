@@ -1,9 +1,12 @@
 import importlib.metadata
 import time
+from pathlib import Path
 
 import mm_crypto_utils
 from loguru import logger
 from mm_crypto_utils import Nodes, Proxies
+from mm_std import BaseConfig, print_json
+from pydantic import BaseModel
 from solders.signature import Signature
 
 from mm_sol.utils import get_client
@@ -11,6 +14,21 @@ from mm_sol.utils import get_client
 
 def get_version() -> str:
     return importlib.metadata.version("mm-sol")
+
+
+class BaseConfigParams(BaseModel):
+    config_path: Path
+    print_config_and_exit: bool
+
+
+def print_config(
+    config: BaseConfig, verbose: bool, exclude_fields: set[str] | None = None, count_fields: set[str] | None = None
+) -> None:
+    data = config.model_dump(exclude=exclude_fields)
+    if not verbose and count_fields:
+        for k in count_fields:
+            data[k] = len(data[k])
+    print_json(data)
 
 
 def public_rpc_url(url: str | None) -> str:
