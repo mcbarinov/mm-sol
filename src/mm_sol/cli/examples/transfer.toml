@@ -3,20 +3,26 @@ Bd8CxCTLez2ckVTqEJjuZkWjYFSRbo8fA1qYbd7yFVP9 Eaft9xXzfgbRqsHd65WspoaxTtH7pkznM9Y
 Fc2TRJVCpFZpRz56mFnQETctib1zwFnwHcS7HoQSgUzZ EVJctTWikt29rUXBf49tyQdK87x837HtvpCwqeSjp1Ur
 file: /from/addresses.txt /to/addresses.txt
 """
+
 token = "6VBTMLgv256c7scudNf8T5GoTJcEE8WfgcJhxbGYPQ8G" # if token is not specified, then SOL is used
+
 private_keys = """
 5VTfgpKKkckrsK33vcw6cEgv8SjLiwaorU8sd2ftjo2sx4tCV6N44dF4P9VigLaKNT2vpX3VuiFAiNpEBnMq3CiB
 DE9poAKvs6tENFbADZ25W1zfKeiCbuDnFbafkBgo4rT28ZGkemqnF1zAqX9WGvBKUXSRVhXgX1RHe3qn11xfjR8
 file: ./path/to/privates.txt
 # Extra keys are not a problem, nor is their order.
 """
+
 value = "0.2balance + random(1t, 2.50t) - 100" # If transferring SOL, the suffix ‘sol’ is used. For any other tokens, the suffix ‘t’ is used.
+
 delay = "random(10, 100)" # seconds, optional
+
 proxies = """
 http://usr:pass@123.123.123.123:1234
 env_url: MM_SOL_PROXIES_URL
 url: https://site.com/api/proxies
 """
+
 nodes = """
 https://api.devnet.solana.com
 http://localhost:8899

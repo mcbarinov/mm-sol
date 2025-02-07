@@ -21,12 +21,10 @@ class BaseConfigParams(BaseModel):
     print_config_and_exit: bool
 
 
-def print_config(
-    config: BaseConfig, verbose: bool, exclude_fields: set[str] | None = None, count_fields: set[str] | None = None
-) -> None:
-    data = config.model_dump(exclude=exclude_fields)
-    if not verbose and count_fields:
-        for k in count_fields:
+def print_config(config: BaseConfig, exclude: set[str] | None = None, count: set[str] | None = None) -> None:
+    data = config.model_dump(exclude=exclude)
+    if count:
+        for k in count:
             data[k] = len(data[k])
     print_json(data)
 

@@ -74,10 +74,8 @@ def run(cmd_params: TransferCmdParams) -> None:
     config = Config.read_toml_config_or_exit(cmd_params.config_path)
 
     if cmd_params.print_config_and_exit:
-        cli_utils.print_config(config, cmd_params.print_config_verbose, {"private_keys"}, {"proxies"})
+        cli_utils.print_config(config, exclude={"private_keys"}, count=None if cmd_params.debug else {"proxies"})
         sys.exit(0)
-
-    mm_crypto_utils.init_logger(cmd_params.debug, config.log_debug, config.log_info)
 
     if cmd_params.print_balances:
         _print_balances(config)
@@ -87,14 +85,16 @@ def run(cmd_params: TransferCmdParams) -> None:
 
 
 def _run_transfers(config: Config, cmd_params: TransferCmdParams) -> None:
+    mm_crypto_utils.init_logger(cmd_params.debug, config.log_debug, config.log_info)
     logger.info(f"transfer {cmd_params.config_path}: started at {utc_now()} UTC")
     logger.debug(f"config={config.model_dump(exclude={'private_keys'}) | {'version': cli_utils.get_version()}}")
     for i, route in enumerate(config.routes):
         _transfer(route, config, cmd_params)
-        if not cmd_params.emulate and config.delay is not None and i < len(config.routes) - 1:
+        if config.delay is not None and i < len(config.routes) - 1:
             delay_value = mm_crypto_utils.calc_decimal_value(config.delay)
-            logger.debug(f"delay {delay_value} seconds")
-            time.sleep(float(delay_value))
+            logger.info(f"delay {delay_value} seconds")
+            if not cmd_params.emulate:
+                time.sleep(float(delay_value))
     logger.info(f"transfer {cmd_params.config_path}: finished at {utc_now()} UTC")
 
 
