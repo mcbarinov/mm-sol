@@ -64,6 +64,7 @@ def balances_command(
 def transfer_command(
     config_path: Path,
     print_balances: bool = typer.Option(False, "--balances", "-b", help="Print balances and exit"),
+    print_transfers: bool = typer.Option(False, "--transfers", "-t", help="Print transfers (from, to, value) and exit"),
     print_config: bool = typer.Option(False, "--config", "-c", help="Print config and exit"),
     config_verbose: bool = typer.Option(False, "--config-verbose", help="Print config in verbose mode and exit"),
     emulate: bool = typer.Option(False, "--emulate", "-e", help="Emulate transaction posting"),
@@ -74,6 +75,7 @@ def transfer_command(
         TransferCmdParams(
             config_path=config_path,
             print_balances=print_balances,
+            print_transfers=print_transfers,
             debug=debug,
             no_confirmation=no_confirmation,
             emulate=emulate,

@@ -1,7 +1,12 @@
-routes = """
-Bd8CxCTLez2ckVTqEJjuZkWjYFSRbo8fA1qYbd7yFVP9 Eaft9xXzfgbRqsHd65WspoaxTtH7pkznM9YA8tsDKGwj # comments are allowed
-Fc2TRJVCpFZpRz56mFnQETctib1zwFnwHcS7HoQSgUzZ EVJctTWikt29rUXBf49tyQdK87x837HtvpCwqeSjp1Ur
-file: /from/addresses.txt /to/addresses.txt
+# Each line is a transfer instruction, with format: from_address to_address [value]
+# Value is optional. If value is not set, default_value will be used
+# value is an expression that can contain variable 'balance' and 'random' function
+transfers = """
+# for sol transfer use 'sol' suffix, example: 1.2sol. For other tokens use 't' suffix, example: 1.2t
+Bd8CxCTLez2ckVTqEJjuZkWjYFSRbo8fA1qYbd7yFVP9 Eaft9xXzfgbRqsHd65WspoaxTtH7pkznM9YA8tsDKGwj 1.2t 
+Fc2TRJVCpFZpRz56mFnQETctib1zwFnwHcS7HoQSgUzZ EVJctTWikt29rUXBf49tyQdK87x837HtvpCwqeSjp1Ur 0.6balance-random(1t,2.50t)-100
+6TW4WswDgGmEB5HELBtEdwC1tQJq9Xa1msDjPw94sgai GGb7gb5EzW8GZZWX552eiC9r1SY4Pqtgbqf9UMrBrEzy # default_value will be used
+file: /path/to/other/transfers.txt # transfers from this file will be added
 """
 
 token = "6VBTMLgv256c7scudNf8T5GoTJcEE8WfgcJhxbGYPQ8G" # if token is not specified, then SOL is used
@@ -13,7 +18,8 @@ file: ./path/to/privates.txt
 # Extra keys are not a problem, nor is their order.
 """
 
-value = "0.2balance + random(1t, 2.50t) - 100" # If transferring SOL, the suffix ‘sol’ is used. For any other tokens, the suffix ‘t’ is used.
+# default_value is used if transfer.value is not set in transfers. It's optional.
+default_value = "0.2balance+random(1t,2.50t)-100" # If transferring SOL, the suffix ‘sol’ is used. For any other tokens, the suffix ‘t’ is used.
 
 delay = "random(10, 100)" # seconds, optional
 

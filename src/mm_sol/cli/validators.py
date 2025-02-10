@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from mm_crypto_utils import AddressToPrivate, ConfigValidators, TxRoute
+from mm_crypto_utils import AddressToPrivate, ConfigValidators, Transfer
 
 from mm_sol.account import get_public_key, is_address
 from mm_sol.constants import SUFFIX_DECIMALS
@@ -16,8 +16,8 @@ class Validators(ConfigValidators):
         return ConfigValidators.addresses(unique, is_address=is_address)
 
     @staticmethod
-    def sol_routes() -> Callable[[str], list[TxRoute]]:
-        return ConfigValidators.routes(is_address)
+    def sol_transfers() -> Callable[[str], list[Transfer]]:
+        return ConfigValidators.transfers(is_address)
 
     @staticmethod
     def sol_private_keys() -> Callable[[str], AddressToPrivate]:
