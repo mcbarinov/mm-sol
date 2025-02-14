@@ -10,19 +10,7 @@ def test_get_balance(mainnet_node, usdt_token_address, usdt_owner_address, proxi
     assert res.unwrap() > 0
 
 
-def test_get_balance_no_tokens_account_1(mainnet_node, usdt_token_address, proxies):
-    res = mm_sol.balance.get_token_balance_with_retries(
-        mainnet_node,
-        generate_account().public_key,
-        usdt_token_address,
-        proxies=proxies,
-        no_token_accounts_return_zero=False,
-        retries=5,
-    )
-    assert res.err == "no_token_accounts"
-
-
-def test_get_balance_no_tokens_account_2(mainnet_node, usdt_token_address, proxies):
+def test_get_balance_no_tokens_account(mainnet_node, usdt_token_address, proxies):
     res = mm_sol.balance.get_token_balance_with_retries(
         mainnet_node, generate_account().public_key, usdt_token_address, proxies=proxies, retries=5
     )

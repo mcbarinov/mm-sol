@@ -2,8 +2,10 @@ import httpx
 from mm_crypto_utils import Nodes, Proxies, random_node, random_proxy
 from mm_std import Err, Ok, Result
 from solana.exceptions import SolanaRpcException
-from solana.rpc.types import TokenAccountOpts
+from solana.rpc.core import RPCException
 from solders.pubkey import Pubkey
+from solders.rpc.errors import InvalidParamsMessage
+from spl.token.instructions import get_associated_token_address
 
 from mm_sol import rpc
 from mm_sol.utils import get_client
@@ -31,42 +33,32 @@ def get_token_balance(
     token_account: str | None = None,
     timeout: float = 10,
     proxy: str | None = None,
-    no_token_accounts_return_zero: bool = True,
 ) -> Result[int]:
-    data: list[object] = []
     try:
         client = get_client(node, proxy=proxy, timeout=timeout)
-        if token_account:
-            res_balance = client.get_token_account_balance(Pubkey.from_string(token_account))
-            data.append(res_balance)
-            return Ok(int(res_balance.value.amount))
+        if not token_account:
+            token_account = str(
+                get_associated_token_address(Pubkey.from_string(owner_address), Pubkey.from_string(token_mint_address))
+            )
 
-        res_accounts = client.get_token_accounts_by_owner(
-            Pubkey.from_string(owner_address),
-            TokenAccountOpts(mint=Pubkey.from_string(token_mint_address)),
-        )
-        data.append(res_accounts)
+        res = client.get_token_account_balance(Pubkey.from_string(token_account))
 
-        if no_token_accounts_return_zero and not res_accounts.value:
+        # Sometimes it not raise an error, but it returns this :(
+        if isinstance(res, InvalidParamsMessage) and "could not find account" in res.message:
             return Ok(0)
-        if not res_accounts.value:
-            return Err("no_token_accounts")
-
-        token_accounts = [a.pubkey for a in res_accounts.value]
-        balances = []
-        for token_account_ in token_accounts:
-            res = client.get_token_account_balance(token_account_)
-            data.append(res)
-            if res.value:  # type:ignore[truthy-bool]
-                balances.append(int(res.value.amount))
-
-        return Ok(sum(balances))
+        return Ok(int(res.value.amount), data=res)
+    except RPCException as e:
+        if len(e.args) > 1:
+            s = e.args[0]
+            if isinstance(s, InvalidParamsMessage) and "could not find account" in s.message:
+                return Ok(0)
+        return Err(e)
     except httpx.HTTPStatusError as e:
-        return Err(f"http error: {e}", data=data)
+        return Err(f"http error: {e}")
     except SolanaRpcException as e:
-        return Err(e.error_msg, data=data)
+        return Err(e.error_msg)
     except Exception as e:
-        return Err(e, data=data)
+        return Err(e)
 
 
 def get_token_balance_with_retries(
@@ -77,7 +69,6 @@ def get_token_balance_with_retries(
     token_account: str | None = None,
     timeout: float = 10,
     proxies: Proxies = None,
-    no_token_accounts_return_zero: bool = True,
 ) -> Result[int]:
     res: Result[int] = Err("not started yet")
     for _ in range(retries):
@@ -88,11 +79,8 @@ def get_token_balance_with_retries(
             token_account,
             timeout=timeout,
             proxy=random_proxy(proxies),
-            no_token_accounts_return_zero=no_token_accounts_return_zero,
         )
         if res.is_ok():
-            return res
-        if isinstance(res, Err) and res.err == "no_token_accounts":
             return res
 
     return res
