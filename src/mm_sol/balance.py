@@ -46,7 +46,7 @@ def get_token_balance(
         # Sometimes it not raise an error, but it returns this :(
         if isinstance(res, InvalidParamsMessage) and "could not find account" in res.message:
             return Ok(0)
-        return Ok(int(res.value.amount), data=res)
+        return Ok(int(res.value.amount), data=res.to_json())
     except RPCException as e:
         if len(e.args) > 1:
             s = e.args[0]
