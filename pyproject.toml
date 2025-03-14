@@ -1,16 +1,16 @@
 [project]
 name = "mm-sol"
-version = "0.5.3"
+version = "0.5.4"
 description = ""
 requires-python = ">=3.12"
 dependencies = [
-    "mm-crypto-utils>=0.2.6",
-    "solana~=0.36.5",
-    "solders~=0.23.0",
+    "mm-crypto-utils>=0.2.8",
+    "solana~=0.36.6",
     "base58~=2.1.1",
     "mnemonic==0.21",
-    "typer>=0.15.1",
-    "jinja2>=3.1.5",
+    "typer>=0.15.2",
+    "jinja2>=3.1.6",
+    "socksio>=1.0.0",
 ]
 [project.scripts]
 mm-sol = "mm_sol.cli.cli:app"
@@ -21,11 +21,11 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 dev-dependencies = [
-    "pytest~=8.3.4",
+    "pytest~=8.3.5",
     "pytest-xdist~=3.6.1",
-    "ruff~=0.9.6",
+    "ruff~=0.10.0",
     "pip-audit~=2.8.0",
-    "bandit~=1.8.2",
+    "bandit~=1.8.3",
     "mypy~=1.15.0",
 ]
 
