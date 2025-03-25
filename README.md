@@ -8,3 +8,6 @@ sudo curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.local/bin/env
 uv tool install mm-sol
 ```
+
+### Notes
+- AsyncClient from solana-py with socks5 proxy ignores timeout. Use http proxy. 

@@ -7,6 +7,10 @@ from typer.testing import CliRunner
 
 load_dotenv(".env")
 
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
+
 
 @pytest.fixture
 def devnet_address_1() -> str:
