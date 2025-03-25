@@ -51,7 +51,7 @@ def derive_accounts(mnemonic: str, passphrase: str, derivation_path: str, limit:
                 index=i,
                 path=path,
                 address=str(keypair.pubkey()),
-                private_key=base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8"),
+                private_key=base58.b58encode(bytes(keypair.to_bytes())).decode("utf-8"),
             )
         )
 
@@ -61,8 +61,8 @@ def derive_accounts(mnemonic: str, passphrase: str, derivation_path: str, limit:
 def generate_account() -> NewAccount:
     keypair = Keypair()
     public_key = str(keypair.pubkey())
-    private_key_base58 = base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8")
-    private_key_arr = list(keypair.to_bytes_array())
+    private_key_base58 = base58.b58encode(bytes(keypair.to_bytes())).decode("utf-8")
+    private_key_arr = list(keypair.to_bytes())
     return NewAccount(public_key=public_key, private_key_base58=private_key_base58, private_key_arr=private_key_arr)
 
 
@@ -93,12 +93,12 @@ def get_public_key(private_key: str) -> str:
 
 def get_private_key_base58(private_key: str) -> str:
     keypair = get_keypair(private_key)
-    return base58.b58encode(bytes(keypair.to_bytes_array())).decode("utf-8")
+    return base58.b58encode(bytes(keypair.to_bytes())).decode("utf-8")
 
 
 def get_private_key_arr(private_key: str) -> list[int]:
     keypair = get_keypair(private_key)
-    return list(x for x in keypair.to_bytes_array())  # noqa: C400
+    return list(x for x in keypair.to_bytes())  # noqa: C400
 
 
 def get_private_key_arr_str(private_key: str) -> str:

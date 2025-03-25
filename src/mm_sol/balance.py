@@ -63,10 +63,8 @@ def get_token_balance(
             return Ok(0)
         return Ok(int(res.value.amount), data=res.to_json())
     except RPCException as e:
-        if len(e.args) > 1:
-            s = e.args[0]
-            if isinstance(s, InvalidParamsMessage) and "could not find account" in s.message:
-                return Ok(0)
+        if "could not find account" in str(e):
+            return Ok(0)
         return Err(e)
     except httpx.HTTPStatusError as e:
         return Err(f"http error: {e}")
@@ -98,11 +96,10 @@ async def get_token_balance_async(
             return Ok(0)
         return Ok(int(res.value.amount), data=res.to_json())
     except RPCException as e:
-        if len(e.args) > 1:
-            s = e.args[0]
-            if isinstance(s, InvalidParamsMessage) and "could not find account" in s.message:
-                return Ok(0)
+        if "could not find account" in str(e):
+            return Ok(0)
         return Err(e)
+
     except httpx.HTTPStatusError as e:
         return Err(f"http error: {e}")
     except SolanaRpcException as e:
