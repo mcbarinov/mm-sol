@@ -452,7 +452,7 @@ wheels = [
 
 [[package]]
 name = "mm-sol"
-version = "0.5.4"
+version = "0.5.5"
 source = { editable = "." }
 dependencies = [
     { name = "base58" },

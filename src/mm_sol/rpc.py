@@ -78,7 +78,7 @@ def rpc_call(
     method: str,
     params: list[Any],
     id_: int = 1,
-    timeout: int = 10,
+    timeout: float = 10,
     proxy: str | None = None,
 ) -> Result[Any]:
     data = {"jsonrpc": "2.0", "method": method, "params": params, "id": id_}
@@ -87,7 +87,7 @@ def rpc_call(
     raise NotImplementedError("ws is not implemented")
 
 
-def _http_call(node: str, data: dict[str, object], timeout: int, proxy: str | None) -> Result[Any]:
+def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | None) -> Result[Any]:
     res = hr(node, method="POST", proxy=proxy, timeout=timeout, params=data, json_params=True)
     try:
         if res.is_error():
@@ -104,38 +104,38 @@ def _http_call(node: str, data: dict[str, object], timeout: int, proxy: str | No
         return res.to_err_result(f"exception: {e!s}")
 
 
-def get_balance(node: str, address: str, timeout: int = 10, proxy: str | None = None) -> Result[int]:
+def get_balance(node: str, address: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
     """Returns balance in lamports"""
     return rpc_call(node=node, method="getBalance", params=[address], timeout=timeout, proxy=proxy).and_then(lambda r: r["value"])
 
 
-def get_block_height(node: str, timeout: int = 10, proxy: str | None = None) -> Result[int]:
+def get_block_height(node: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
     """Returns balance in lamports"""
     return rpc_call(node=node, method="getBlockHeight", params=[], timeout=timeout, proxy=proxy)
 
 
-def get_slot(node: str, timeout: int = 10, proxy: str | None = None) -> Result[int]:
+def get_slot(node: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
     return rpc_call(node=node, method="getSlot", params=[], timeout=timeout, proxy=proxy)
 
 
-def get_epoch_info(node: str, epoch: int | None = None, timeout: int = 10, proxy: str | None = None) -> Result[EpochInfo]:
+def get_epoch_info(node: str, epoch: int | None = None, timeout: float = 10, proxy: str | None = None) -> Result[EpochInfo]:
     params = [epoch] if epoch else []
     return rpc_call(node=node, method="getEpochInfo", params=params, timeout=timeout, proxy=proxy).and_then(
         lambda r: EpochInfo(**r),
     )
 
 
-def get_health(node: str, timeout: int = 10, proxy: str | None = None) -> Result[bool]:
+def get_health(node: str, timeout: float = 10, proxy: str | None = None) -> Result[bool]:
     return rpc_call(node=node, method="getHealth", params=[], timeout=timeout, proxy=proxy).and_then(lambda r: r == "ok")
 
 
-def get_cluster_nodes(node: str, timeout: int = 30, proxy: str | None = None) -> Result[list[ClusterNode]]:
+def get_cluster_nodes(node: str, timeout: float = 30, proxy: str | None = None) -> Result[list[ClusterNode]]:
     return rpc_call(node=node, method="getClusterNodes", timeout=timeout, proxy=proxy, params=[]).and_then(
         lambda r: [ClusterNode(**n) for n in r],
     )
 
 
-def get_vote_accounts(node: str, timeout: int = 30, proxy: str | None = None) -> Result[list[VoteAccount]]:
+def get_vote_accounts(node: str, timeout: float = 30, proxy: str | None = None) -> Result[list[VoteAccount]]:
     res = rpc_call(node=node, method="getVoteAccounts", timeout=timeout, proxy=proxy, params=[])
     if res.is_err():
         return res
@@ -182,7 +182,7 @@ def get_vote_accounts(node: str, timeout: int = 30, proxy: str | None = None) ->
 def get_leader_scheduler(
     node: str,
     slot: int | None = None,
-    timeout: int = 10,
+    timeout: float = 10,
     proxy: str | None = None,
 ) -> Result[dict[str, list[int]]]:
     return rpc_call(
@@ -194,7 +194,7 @@ def get_leader_scheduler(
     )
 
 
-def get_block_production(node: str, timeout: int = 60, proxy: str | None = None) -> Result[BlockProduction]:
+def get_block_production(node: str, timeout: float = 60, proxy: str | None = None) -> Result[BlockProduction]:
     res = rpc_call(node=node, method="getBlockProduction", timeout=timeout, proxy=proxy, params=[])
     if res.is_err():
         return res
@@ -211,7 +211,7 @@ def get_block_production(node: str, timeout: int = 60, proxy: str | None = None)
         return Err(e, data=res.data)
 
 
-def get_stake_activation(node: str, address: str, timeout: int = 60, proxy: str | None = None) -> Result[StakeActivation]:
+def get_stake_activation(node: str, address: str, timeout: float = 60, proxy: str | None = None) -> Result[StakeActivation]:
     return rpc_call(node=node, method="getStakeActivation", timeout=timeout, proxy=proxy, params=[address]).and_then(
         lambda ok: StakeActivation(**ok),
     )
@@ -222,7 +222,7 @@ def get_transaction(
     signature: str,
     max_supported_transaction_version: int | None = None,
     encoding: str = "json",
-    timeout: int = 60,
+    timeout: float = 60,
     proxy: str | None = None,
 ) -> Result[dict[str, object] | None]:
     if max_supported_transaction_version is not None:

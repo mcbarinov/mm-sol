@@ -9,7 +9,7 @@ async def rpc_call(
     method: str,
     params: list[Any],
     id_: int = 1,
-    timeout: int = 10,
+    timeout: float = 10,
     proxy: str | None = None,
 ) -> Result[Any]:
     data = {"jsonrpc": "2.0", "method": method, "params": params, "id": id_}
@@ -18,7 +18,7 @@ async def rpc_call(
     raise NotImplementedError("ws is not implemented")
 
 
-async def _http_call(node: str, data: dict[str, object], timeout: int, proxy: str | None) -> Result[Any]:
+async def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | None) -> Result[Any]:
     res = await ahr(node, method="POST", proxy=proxy, timeout=timeout, params=data, json_params=True)
     try:
         if res.is_error():
@@ -35,7 +35,7 @@ async def _http_call(node: str, data: dict[str, object], timeout: int, proxy: st
         return res.to_err_result(f"exception: {e!s}")
 
 
-async def get_balance(node: str, address: str, timeout: int = 10, proxy: str | None = None) -> Result[int]:
+async def get_balance(node: str, address: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
     """Returns balance in lamports"""
     return (await rpc_call(node=node, method="getBalance", params=[address], timeout=timeout, proxy=proxy)).and_then(
         lambda r: r["value"]

@@ -5,7 +5,8 @@ import pytest
 from dotenv import load_dotenv
 from typer.testing import CliRunner
 
-load_dotenv(".env")
+load_dotenv()
+
 
 @pytest.fixture
 def anyio_backend():
