@@ -1,6 +1,6 @@
 from typing import Any
 
-from mm_std import Result, ahr
+from mm_std import Result, hra
 
 
 async def rpc_call(
@@ -19,7 +19,7 @@ async def rpc_call(
 
 
 async def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | None) -> Result[Any]:
-    res = await ahr(node, method="POST", proxy=proxy, timeout=timeout, params=data, json_params=True)
+    res = await hra(node, method="POST", proxy=proxy, timeout=timeout, params=data, json_params=True)
     try:
         if res.is_error():
             return res.to_err_result()

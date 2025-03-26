@@ -1,10 +1,10 @@
 [project]
 name = "mm-sol"
-version = "0.5.6"
+version = "0.5.7"
 description = ""
 requires-python = ">=3.12"
 dependencies = [
-    "mm-crypto-utils>=0.2.9",
+    "mm-crypto-utils>=0.2.10",
     "solana~=0.36.6",
     "solders~=0.26.0",
     "base58~=2.1.1",
