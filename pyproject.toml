@@ -1,10 +1,10 @@
 [project]
 name = "mm-sol"
-version = "0.5.7"
+version = "0.5.8"
 description = ""
 requires-python = ">=3.12"
 dependencies = [
-    "mm-crypto-utils>=0.2.10",
+    "mm-crypto-utils>=0.2.13",
     "solana~=0.36.6",
     "solders~=0.26.0",
     "base58~=2.1.1",
@@ -12,6 +12,7 @@ dependencies = [
     "typer>=0.15.2",
     "jinja2>=3.1.6",
     "socksio>=1.0.0",
+#    "websockets~=15.0.1"
 ]
 [project.scripts]
 mm-sol = "mm_sol.cli.cli:app"
@@ -25,7 +26,7 @@ dev-dependencies = [
     "pytest~=8.3.5",
     "pytest-xdist~=3.6.1",
     "ruff~=0.11.2",
-    "pip-audit~=2.8.0",
+    "pip-audit~=2.9.0",
     "bandit~=1.8.3",
     "mypy~=1.15.0",
 ]
