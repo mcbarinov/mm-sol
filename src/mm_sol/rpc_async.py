@@ -44,14 +44,14 @@ async def _ws_call(node: str, data: dict[str, object], timeout: float) -> DataRe
 
         err = response.get("error", {}).get("message", "")
         if err:
-            return DataResult(err=f"service_error: {err}", data=response)
+            return DataResult.err(f"service_error: {err}", {"res": response})
         if "result" in response:
-            return DataResult(ok=response["result"], data=response)
-        return DataResult(err="unknown_response", data=response)
+            return DataResult.ok(response["result"], {"res": response})
+        return DataResult.err("unknown_response", {"res": response})
     except TimeoutError:
-        return DataResult(err="timeout")
+        return DataResult.err("timeout")
     except Exception as err:
-        return DataResult(err=f"exception: {err}")
+        return DataResult.exception(err)
 
 
 async def get_block_height(node: str, timeout: float = 10, proxy: str | None = None) -> DataResult[int]:
