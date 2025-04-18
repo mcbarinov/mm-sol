@@ -77,7 +77,7 @@ def proxy() -> str:
 def proxies() -> list[str]:
     proxies_url = os.getenv("PROXIES_URL")
     if proxies_url:
-        return mm_crypto_utils.fetch_proxies_or_fatal(proxies_url)
+        return mm_crypto_utils.proxy.fetch_proxies_or_fatal_sync(proxies_url)
     return []
 
 

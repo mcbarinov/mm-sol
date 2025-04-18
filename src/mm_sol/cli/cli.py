@@ -1,3 +1,4 @@
+import asyncio
 from enum import Enum
 from pathlib import Path
 from typing import Annotated
@@ -50,14 +51,14 @@ def balance_command(
     proxies_url: Annotated[str, typer.Option("--proxies-url", envvar="MM_SOL_PROXIES_URL")] = "",  # nosec
     lamport: bool = typer.Option(False, "--lamport", "-l", help="Print balances in lamports"),
 ) -> None:
-    balance_cmd.run(rpc_url, wallet_address, token_address, lamport, proxies_url)
+    asyncio.run(balance_cmd.run(rpc_url, wallet_address, token_address, lamport, proxies_url))
 
 
 @app.command(name="balances", help="Displays SOL and token balances for multiple accounts")
 def balances_command(
     config_path: Path, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
 ) -> None:
-    balances_cmd.run(config_path, print_config)
+    asyncio.run(balances_cmd.run(config_path, print_config))
 
 
 @app.command(name="transfer", help="Transfers SOL or SPL tokens, supporting multiple routes, delays, and expression-based values")
@@ -71,16 +72,18 @@ def transfer_command(
     no_confirmation: bool = typer.Option(False, "--no-confirmation", "-nc", help="Do not wait for confirmation"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Print debug info"),
 ) -> None:
-    transfer_cmd.run(
-        TransferCmdParams(
-            config_path=config_path,
-            print_balances=print_balances,
-            print_transfers=print_transfers,
-            debug=debug,
-            no_confirmation=no_confirmation,
-            emulate=emulate,
-            print_config_and_exit=print_config or config_verbose,
-            print_config_verbose=config_verbose,
+    asyncio.run(
+        transfer_cmd.run(
+            TransferCmdParams(
+                config_path=config_path,
+                print_balances=print_balances,
+                print_transfers=print_transfers,
+                debug=debug,
+                no_confirmation=no_confirmation,
+                emulate=emulate,
+                print_config_and_exit=print_config or config_verbose,
+                print_config_verbose=config_verbose,
+            )
         )
     )
 
@@ -90,7 +93,7 @@ def node_command(
     urls: Annotated[list[str], typer.Argument()],
     proxy: Annotated[str | None, typer.Option("--proxy", "-p", help="Proxy")] = None,
 ) -> None:
-    node_cmd.run(urls, proxy)
+    asyncio.run(node_cmd.run(urls, proxy))
 
 
 @wallet_app.command(name="mnemonic", help="Derive accounts from a mnemonic")

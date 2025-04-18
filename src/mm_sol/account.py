@@ -1,16 +1,11 @@
 import contextlib
-import random
 from dataclasses import dataclass
 
 import base58
-import pydash
-from mm_std import Err, Ok, Result
 from mnemonic import Mnemonic
 from pydantic import BaseModel
-from solana.rpc.api import Client
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
-from solders.rpc.responses import GetAccountInfoResp
 
 PHANTOM_DERIVATION_PATH = "m/44'/501'/{i}'/0'"
 WORD_STRENGTH = {12: 128, 15: 160, 18: 192, 21: 224, 24: 256}
@@ -103,27 +98,6 @@ def get_private_key_arr(private_key: str) -> list[int]:
 
 def get_private_key_arr_str(private_key: str) -> str:
     return f"[{','.join(str(x) for x in get_private_key_arr(private_key))}]"
-
-
-def is_empty_account(*, address: str, node: str | None = None, nodes: list[str] | None = None, attempts: int = 3) -> Result[bool]:
-    if not node and not nodes:
-        raise ValueError("node or nodes must be set")
-    error = None
-    data = None
-    for _ in range(attempts):
-        try:
-            client = Client(node or random.choice(nodes))  # type: ignore[arg-type]
-            res: GetAccountInfoResp = client.get_account_info(Pubkey.from_string(address))
-            data = res
-            slot = pydash.get(res, "result.context.slot")
-            value = pydash.get(res, "result.value")
-            if slot and value is None:
-                return Ok(True, data=data)
-            if slot and value:
-                return Ok(False, data=data)
-        except Exception as e:
-            error = str(e)
-    return Err(error or "unknown response", data=data)
 
 
 def is_address(pubkey: str) -> bool:

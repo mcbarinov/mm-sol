@@ -4,14 +4,11 @@ from pathlib import Path
 from typing import Annotated, Any
 
 from mm_crypto_utils import ConfigValidators
-from mm_std import BaseConfig, Err, fatal, print_json
+from mm_std import BaseConfig, fatal, print_json
 from pydantic import BeforeValidator, Field
 
-import mm_sol.converters
-from mm_sol import balance
-from mm_sol.balance import get_token_balance_with_retries
+from mm_sol import converters, rpc, spl_token
 from mm_sol.cli.validators import Validators
-from mm_sol.token import get_decimals_with_retries
 
 
 class Config(BaseConfig):
@@ -25,47 +22,49 @@ class Config(BaseConfig):
         return random.choice(self.nodes)
 
 
-def run(config_path: Path, print_config: bool) -> None:
+async def run(config_path: Path, print_config: bool) -> None:
     config = Config.read_toml_config_or_exit(config_path)
     if print_config:
         config.print_and_exit()
 
-    result: dict[str, Any] = {"sol": _get_sol_balances(config.accounts, config)}
+    result: dict[str, Any] = {"sol": await _get_sol_balances(config.accounts, config)}
     result["sol_sum"] = sum([v for v in result["sol"].values() if v is not None])
 
     if config.tokens:
-        for token in config.tokens:
-            token_decimals_res = get_decimals_with_retries(config.nodes, token, retries=3, proxies=config.proxies)
-            if isinstance(token_decimals_res, Err):
-                fatal(f"Failed to get decimals for token {token}: {token_decimals_res.unwrap_err()}")
-            token_decimals = token_decimals_res.unwrap()
-            result[token] = _get_token_balances(token, token_decimals, config.accounts, config)
-            result[token + "_decimals"] = token_decimals
-            result[token + "_sum"] = sum([v for v in result[token].values() if v is not None])
+        for token_address in config.tokens:
+            res = await spl_token.get_decimals_with_retries(3, config.nodes, config.proxies, token=token_address)
+            if res.is_error():
+                fatal(f"Failed to get decimals for token {token_address}: {res.unwrap_error()}")
+
+            token_decimals = res.unwrap()
+            result[token_address] = await _get_token_balances(token_address, token_decimals, config.accounts, config)
+            result[token_address + "_decimals"] = token_decimals
+            result[token_address + "_sum"] = sum([v for v in result[token_address].values() if v is not None])
 
     print_json(result)
 
 
-def _get_token_balances(token: str, token_decimals: int, accounts: list[str], config: Config) -> dict[str, Decimal | None]:
-    result = {}
+async def _get_token_balances(
+    token_address: str, token_decimals: int, accounts: list[str], config: Config
+) -> dict[str, Decimal | None]:
+    result: dict[str, Decimal | None] = {}
     for account in accounts:
         result[account] = (
-            get_token_balance_with_retries(
-                nodes=config.nodes,
-                owner_address=account,
-                token_mint_address=token,
-                retries=3,
-                proxies=config.proxies,
-            )
-            .map(lambda v: mm_sol.converters.to_token(v, token_decimals))
-            .unwrap_or(None)
+            (await spl_token.get_balance_with_retries(3, config.nodes, config.proxies, owner=account, token=token_address))
+            .map(lambda v: converters.to_token(v, token_decimals))
+            .ok
         )
+
     return result
 
 
-def _get_sol_balances(accounts: list[str], config: Config) -> dict[str, Decimal | None]:
+async def _get_sol_balances(accounts: list[str], config: Config) -> dict[str, Decimal | None]:
     result = {}
     for account in accounts:
-        res = balance.get_sol_balance_with_retries(nodes=config.nodes, address=account, retries=3, proxies=config.proxies)
-        result[account] = mm_sol.converters.lamports_to_sol(res.unwrap(), ndigits=2) if res.is_ok() else None
+        result[account] = (
+            (await rpc.get_balance_with_retries(3, config.nodes, config.proxies, address=account))
+            .map(lambda v: converters.lamports_to_sol(v))
+            .ok
+        )
+
     return result

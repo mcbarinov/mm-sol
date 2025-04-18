@@ -1,8 +1,8 @@
 import mm_crypto_utils
 from mm_crypto_utils import Nodes, Proxies, VarInt
-from mm_std import Err, Ok, Result
+from mm_std import Result
 
-from mm_sol.balance import get_sol_balance_with_retries, get_token_balance_with_retries
+from mm_sol import rpc, spl_token
 from mm_sol.constants import SUFFIX_DECIMALS
 
 
@@ -14,36 +14,32 @@ def calc_token_expression(expression: str, token_decimals: int, var: VarInt | No
     return mm_crypto_utils.calc_int_expression(expression, var=var, suffix_decimals={"t": token_decimals})
 
 
-def calc_sol_value_for_address(*, nodes: Nodes, value_expression: str, address: str, proxies: Proxies, fee: int) -> Result[int]:
+async def calc_sol_value_for_address(
+    *, nodes: Nodes, value_expression: str, address: str, proxies: Proxies, fee: int
+) -> Result[int]:
     value_expression = value_expression.lower()
     var = None
     if "balance" in value_expression:
-        res = get_sol_balance_with_retries(nodes, address, proxies=proxies, retries=5)
-        if isinstance(res, Err):
+        res = await rpc.get_balance_with_retries(5, nodes, proxies, address=address)
+        if res.is_error():
             return res
-        var = VarInt("balance", res.ok)
+        var = VarInt("balance", res.unwrap())
 
     value = calc_sol_expression(value_expression, var)
     if "balance" in value_expression:
         value = value - fee
-    return Ok(value)
+    return Result.success(value)
 
 
-def calc_token_value_for_address(
-    *, nodes: Nodes, value_expression: str, wallet_address: str, token_mint_address: str, token_decimals: int, proxies: Proxies
+async def calc_token_value_for_address(
+    *, nodes: Nodes, value_expression: str, owner: str, token: str, token_decimals: int, proxies: Proxies
 ) -> Result[int]:
     var = None
     value_expression = value_expression.lower()
     if "balance" in value_expression:
-        res = get_token_balance_with_retries(
-            nodes=nodes,
-            owner_address=wallet_address,
-            token_mint_address=token_mint_address,
-            proxies=proxies,
-            retries=5,
-        )
-        if isinstance(res, Err):
+        res = await spl_token.get_balance_with_retries(5, nodes, proxies, owner=owner, token=token)
+        if res.is_error():
             return res
-        var = VarInt("balance", res.ok)
+        var = VarInt("balance", res.unwrap())
     value = calc_token_expression(value_expression, token_decimals, var)
-    return Ok(value)
+    return Result.success(value)

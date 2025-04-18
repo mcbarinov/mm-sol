@@ -1,11 +1,10 @@
 from decimal import Decimal
 
 import mm_crypto_utils
-from mm_std import Ok, print_json
+from mm_std import print_json
 from pydantic import BaseModel, Field
 
-import mm_sol.balance
-from mm_sol import balance, token
+from mm_sol import rpc, spl_token
 from mm_sol.cli import cli_utils
 
 
@@ -32,7 +31,7 @@ class BalanceResult(BaseModel):
         )
 
 
-def run(
+async def run(
     rpc_url: str,
     wallet_address: str,
     token_address: str | None,
@@ -42,34 +41,32 @@ def run(
     result = BalanceResult()
 
     rpc_url = cli_utils.public_rpc_url(rpc_url)
-    proxies = mm_crypto_utils.fetch_proxies_or_fatal(proxies_url) if proxies_url else None
+
+    proxies = await mm_crypto_utils.fetch_proxies_or_fatal(proxies_url) if proxies_url else None
 
     # sol balance
-    sol_balance_res = balance.get_sol_balance_with_retries(rpc_url, wallet_address, retries=3, proxies=proxies)
-    if isinstance(sol_balance_res, Ok):
-        result.sol_balance = sol_balance_res.ok
+    sol_balance_res = await rpc.get_balance_with_retries(3, rpc_url, proxies, address=wallet_address)
+    if sol_balance_res.is_ok():
+        result.sol_balance = sol_balance_res.unwrap()
     else:
-        result.errors.append("sol_balance: " + sol_balance_res.err)
+        result.errors.append("sol_balance: " + sol_balance_res.unwrap_error())
 
     # token balance
     if token_address:
-        token_balance_res = mm_sol.balance.get_token_balance_with_retries(
-            nodes=rpc_url,
-            owner_address=wallet_address,
-            token_mint_address=token_address,
-            retries=3,
-            proxies=proxies,
+        token_balance_res = await spl_token.get_balance_with_retries(
+            3, rpc_url, proxies, owner=wallet_address, token=token_address
         )
-        if isinstance(token_balance_res, Ok):
-            result.token_balance = token_balance_res.ok
-        else:
-            result.errors.append("token_balance: " + token_balance_res.err)
 
-        decimals_res = token.get_decimals_with_retries(rpc_url, token_address, retries=3, proxies=proxies)
-        if isinstance(decimals_res, Ok):
-            result.token_decimals = decimals_res.ok
+        if token_balance_res.is_ok():
+            result.token_balance = token_balance_res.unwrap()
         else:
-            result.errors.append("token_decimals: " + decimals_res.err)
+            result.errors.append("token_balance: " + token_balance_res.unwrap_error())
+
+        decimals_res = await spl_token.get_decimals_with_retries(3, rpc_url, proxies, token=token_address)
+        if decimals_res.is_ok():
+            result.token_decimals = decimals_res.unwrap()
+        else:
+            result.errors.append("token_decimals: " + decimals_res.unwrap_error())
 
     if lamport:
         print_json(result)
