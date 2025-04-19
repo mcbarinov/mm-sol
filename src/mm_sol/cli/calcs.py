@@ -2,7 +2,7 @@ import mm_crypto_utils
 from mm_crypto_utils import Nodes, Proxies, VarInt
 from mm_std import Result
 
-from mm_sol import rpc, spl_token
+from mm_sol import retry
 from mm_sol.constants import SUFFIX_DECIMALS
 
 
@@ -20,15 +20,15 @@ async def calc_sol_value_for_address(
     value_expression = value_expression.lower()
     var = None
     if "balance" in value_expression:
-        res = await rpc.get_balance_with_retries(5, nodes, proxies, address=address)
-        if res.is_error():
+        res = await retry.get_sol_balance(5, nodes, proxies, address=address)
+        if res.is_err():
             return res
         var = VarInt("balance", res.unwrap())
 
     value = calc_sol_expression(value_expression, var)
     if "balance" in value_expression:
         value = value - fee
-    return Result.success(value)
+    return Result.ok(value)
 
 
 async def calc_token_value_for_address(
@@ -37,9 +37,9 @@ async def calc_token_value_for_address(
     var = None
     value_expression = value_expression.lower()
     if "balance" in value_expression:
-        res = await spl_token.get_balance_with_retries(5, nodes, proxies, owner=owner, token=token)
-        if res.is_error():
+        res = await retry.get_token_balance(5, nodes, proxies, owner=owner, token=token)
+        if res.is_err():
             return res
         var = VarInt("balance", res.unwrap())
     value = calc_token_expression(value_expression, token_decimals, var)
-    return Result.success(value)
+    return Result.ok(value)

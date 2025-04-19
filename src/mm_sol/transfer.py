@@ -1,5 +1,4 @@
 import pydash
-from mm_crypto_utils import Nodes, Proxies, retry_with_node_and_proxy
 from mm_std import Result
 from pydantic import BaseModel
 from solders.message import Message
@@ -13,39 +12,6 @@ from spl.token.instructions import get_associated_token_address
 
 from mm_sol import rpc_sync, utils
 from mm_sol.account import check_private_key, get_keypair
-
-
-async def transfer_token_with_retries(
-    retries: int,
-    nodes: Nodes,
-    proxies: Proxies,
-    *,
-    token_mint_address: str | Pubkey,
-    from_address: str | Pubkey,
-    private_key: str,
-    to_address: str | Pubkey,
-    amount: int,  # smallest unit
-    decimals: int,
-    timeout: float = 10,
-    create_token_account_if_not_exists: bool = True,
-) -> Result[Signature]:
-    return await retry_with_node_and_proxy(
-        retries,
-        nodes,
-        proxies,
-        lambda node, proxy: transfer_token(
-            node=node,
-            token_mint_address=token_mint_address,
-            from_address=from_address,
-            private_key=private_key,
-            to_address=to_address,
-            amount=amount,
-            decimals=decimals,
-            proxy=proxy,
-            timeout=timeout,
-            create_token_account_if_not_exists=create_token_account_if_not_exists,
-        ),
-    )
 
 
 async def transfer_token(
@@ -64,7 +30,7 @@ async def transfer_token(
     # TODO: try/except this function!!!
     acc = get_keypair(private_key)
     if not check_private_key(from_address, private_key):
-        return Result.failure("invalid_private_key")
+        return Result.err("invalid_private_key")
 
     from_address = utils.pubkey(from_address)
     token_mint_address = utils.pubkey(token_mint_address)
@@ -83,7 +49,7 @@ async def transfer_token(
             create_account_res = token_client.create_associated_token_account(to_address, skip_confirmation=False)
             logs.append(create_account_res)
         else:
-            return Result.failure("no_token_account")
+            return Result.err("no_token_account")
 
     res = await token_client.transfer_checked(
         source=from_token_account,
@@ -95,34 +61,7 @@ async def transfer_token(
     )
     logs.append(res)
 
-    return Result.success(res.value, {"logs": logs})
-
-
-async def transfer_sol_with_retries(
-    retries: int,
-    nodes: Nodes,
-    proxies: Proxies,
-    *,
-    from_address: str,
-    private_key: str,
-    to_address: str,
-    lamports: int,
-    timeout: float = 10,
-) -> Result[Signature]:
-    return await retry_with_node_and_proxy(
-        retries,
-        nodes,
-        proxies,
-        lambda node, proxy: transfer_sol(
-            node=node,
-            proxy=proxy,
-            from_address=from_address,
-            to_address=to_address,
-            lamports=lamports,
-            private_key=private_key,
-            timeout=timeout,
-        ),
-    )
+    return Result.ok(res.value, {"logs": logs})
 
 
 async def transfer_sol(
@@ -137,7 +76,7 @@ async def transfer_sol(
 ) -> Result[Signature]:
     acc = get_keypair(private_key)
     if not check_private_key(from_address, private_key):
-        return Result.failure("invalid_private_key")
+        return Result.err("invalid_private_key")
 
     client = utils.get_async_client(node, proxy=proxy, timeout=timeout)
     data = None
@@ -148,9 +87,9 @@ async def transfer_sol(
         tx = Transaction([acc], msg, blockhash.value.blockhash)
         res = await client.send_transaction(tx)
         data = res.to_json()
-        return Result.success(res.value, {"response": data})
+        return Result.ok(res.value, {"response": data})
     except Exception as e:
-        return Result.failure(e, {"response": data})
+        return Result.err(e, {"response": data})
 
 
 class SolTransferInfo(BaseModel):
@@ -161,7 +100,7 @@ class SolTransferInfo(BaseModel):
 
 def find_sol_transfers(node: str, tx_signature: str) -> Result[list[SolTransferInfo]]:
     res = rpc_sync.get_transaction(node, tx_signature, encoding="jsonParsed")
-    if res.is_error():
+    if res.is_err():
         return res  # type: ignore[return-value]
     result = []
     try:
@@ -174,6 +113,6 @@ def find_sol_transfers(node: str, tx_signature: str) -> Result[list[SolTransferI
                 lamports = pydash.get(ix, "parsed.info.lamports")
                 if source and destination and lamports:
                     result.append(SolTransferInfo(source=source, destination=destination, lamports=lamports))
-        return Result.success(result, res.extra)
+        return res.with_value(result)
     except Exception as e:
-        return Result.failure(e, res.extra)
+        return Result.err(e, res.extra)

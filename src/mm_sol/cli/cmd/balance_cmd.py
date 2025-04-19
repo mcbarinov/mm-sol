@@ -4,7 +4,8 @@ import mm_crypto_utils
 from mm_std import print_json
 from pydantic import BaseModel, Field
 
-from mm_sol import rpc, spl_token
+import mm_sol.retry
+from mm_sol import retry
 from mm_sol.cli import cli_utils
 
 
@@ -45,7 +46,7 @@ async def run(
     proxies = await mm_crypto_utils.fetch_proxies_or_fatal(proxies_url) if proxies_url else None
 
     # sol balance
-    sol_balance_res = await rpc.get_balance_with_retries(3, rpc_url, proxies, address=wallet_address)
+    sol_balance_res = await retry.get_sol_balance(3, rpc_url, proxies, address=wallet_address)
     if sol_balance_res.is_ok():
         result.sol_balance = sol_balance_res.unwrap()
     else:
@@ -53,16 +54,14 @@ async def run(
 
     # token balance
     if token_address:
-        token_balance_res = await spl_token.get_balance_with_retries(
-            3, rpc_url, proxies, owner=wallet_address, token=token_address
-        )
+        token_balance_res = await mm_sol.retry.get_token_balance(3, rpc_url, proxies, owner=wallet_address, token=token_address)
 
         if token_balance_res.is_ok():
             result.token_balance = token_balance_res.unwrap()
         else:
             result.errors.append("token_balance: " + token_balance_res.unwrap_error())
 
-        decimals_res = await spl_token.get_decimals_with_retries(3, rpc_url, proxies, token=token_address)
+        decimals_res = await mm_sol.retry.get_token_decimals(3, rpc_url, proxies, token=token_address)
         if decimals_res.is_ok():
             result.token_decimals = decimals_res.unwrap()
         else:

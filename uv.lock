@@ -562,25 +562,24 @@ wheels = [
 
 [[package]]
 name = "mm-crypto-utils"
-version = "0.3.3"
+version = "0.3.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "mm-std" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2b/3b/584e21e4a471f6cbc7237e924c550ab4a19be8e0d2064e76a4a5f2f4fe1a/mm_crypto_utils-0.3.3-py3-none-any.whl", hash = "sha256:4d53940267a84f4a4dd00b832cedb76264d1d6fcacccdd0acc3c2ec2f79eacc7", size = 10092 },
+    { url = "https://files.pythonhosted.org/packages/e8/53/d89b21605698bfe087b8768d808c61ebac9d299694bf4a11bd84460691b3/mm_crypto_utils-0.3.4-py3-none-any.whl", hash = "sha256:964f81c53406ca58b0627dfd13c5743f1d919a94580b1683025bd40518983dd9", size = 10075 },
 ]
 
 [[package]]
 name = "mm-sol"
-version = "0.6.0"
+version = "0.6.1"
 source = { editable = "." }
 dependencies = [
     { name = "base58" },
     { name = "jinja2" },
     { name = "mm-crypto-utils" },
-    { name = "mm-std" },
     { name = "mnemonic" },
     { name = "socksio" },
     { name = "solana" },
@@ -603,8 +602,7 @@ dev = [
 requires-dist = [
     { name = "base58", specifier = "~=2.1.1" },
     { name = "jinja2", specifier = ">=3.1.6" },
-    { name = "mm-crypto-utils", specifier = ">=0.3.3" },
-    { name = "mm-std", specifier = ">=0.4.5" },
+    { name = "mm-crypto-utils", specifier = ">=0.3.4" },
     { name = "mnemonic", specifier = "==0.21" },
     { name = "socksio", specifier = ">=1.0.0" },
     { name = "solana", specifier = "~=0.36.6" },
@@ -625,7 +623,7 @@ dev = [
 
 [[package]]
 name = "mm-std"
-version = "0.4.5"
+version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -641,7 +639,7 @@ dependencies = [
     { name = "tomlkit" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/c3/22c61044cc48eaacc9b8dcf61d72de5085539d354ab10996c16de2979aed/mm_std-0.4.5-py3-none-any.whl", hash = "sha256:02b7269ad2c74c8551a906246b66fdd91ea5fb83f6108d5690da64780e31354e", size = 23604 },
+    { url = "https://files.pythonhosted.org/packages/df/7c/bf7484f886905fd0c045b3ef617eac97cf4128e85191cc232df41c44b218/mm_std-0.4.6-py3-none-any.whl", hash = "sha256:f9f74ed75bda4569d8ed3fbb61b7f0add9668e800e93724cf84b61b599b77a68", size = 23821 },
 ]
 
 [[package]]
@@ -1016,15 +1014,16 @@ wheels = [
 
 [[package]]
 name = "pydantic-settings"
-version = "2.8.1"
+version = "2.9.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/88/82/c79424d7d8c29b994fb01d277da57b0a9b09cc03c3ff875f9bd8a86b2145/pydantic_settings-2.8.1.tar.gz", hash = "sha256:d5c663dfbe9db9d5e1c646b2e161da12f0d734d422ee56f567d0ea2cee4e8585", size = 83550 }
+sdist = { url = "https://files.pythonhosted.org/packages/67/1d/42628a2c33e93f8e9acbde0d5d735fa0850f3e6a2f8cb1eb6c40b9a732ac/pydantic_settings-2.9.1.tar.gz", hash = "sha256:c509bf79d27563add44e8446233359004ed85066cd096d8b510f715e6ef5d268", size = 163234 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/53/a64f03044927dc47aafe029c42a5b7aabc38dfb813475e0e1bf71c4a59d0/pydantic_settings-2.8.1-py3-none-any.whl", hash = "sha256:81942d5ac3d905f7f3ee1a70df5dfb62d5569c12f51a5a647defc1c3d9ee2e9c", size = 30839 },
+    { url = "https://files.pythonhosted.org/packages/b6/5f/d6d641b490fd3ec2c4c13b4244d68deea3a1b970a97be64f34fb5504ff72/pydantic_settings-2.9.1-py3-none-any.whl", hash = "sha256:59b4f431b1defb26fe620c71a7d3968a710d719f5f4cdbbdb7926edeb770f6ef", size = 44356 },
 ]
 
 [[package]]

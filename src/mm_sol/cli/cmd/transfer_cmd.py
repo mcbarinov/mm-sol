@@ -13,12 +13,12 @@ from rich.live import Live
 from rich.table import Table
 from solders.signature import Signature
 
-from mm_sol import rpc, spl_token
+import mm_sol.retry
+from mm_sol import retry
 from mm_sol.cli import calcs, cli_utils
 from mm_sol.cli.cli_utils import BaseConfigParams
 from mm_sol.cli.validators import Validators
 from mm_sol.converters import lamports_to_sol, to_token
-from mm_sol.transfer import transfer_sol_with_retries, transfer_token_with_retries
 
 
 class Config(BaseConfig):
@@ -63,8 +63,8 @@ class Config(BaseConfig):
                 Validators.valid_sol_expression()(self.value_min_limit)
 
         if self.token:
-            res = await spl_token.get_decimals_with_retries(3, self.nodes, self.proxies, token=self.token)
-            if res.is_error():
+            res = await mm_sol.retry.get_token_decimals(3, self.nodes, self.proxies, token=self.token)
+            if res.is_err():
                 fatal(f"can't get decimals for token={self.token}, error={res.unwrap_error()}")
             self.token_decimals = res.unwrap()
 
@@ -131,10 +131,10 @@ async def _calc_value(transfer: Transfer, config: Config, transfer_sol_fee: int)
             fee=transfer_sol_fee,
         )
     logger.debug(f"{transfer.log_prefix}: value={value_res.ok_or_error()}")
-    if value_res.is_error():
+    if value_res.is_err():
         logger.info(f"{transfer.log_prefix}: calc value error, {value_res.unwrap_error()}")
 
-    return value_res.ok
+    return value_res.value
 
 
 def _check_value_min_limit(transfer: Transfer, value: int, config: Config) -> bool:
@@ -158,7 +158,7 @@ def _value_with_suffix(value: int, config: Config) -> str:
 async def _send_tx(transfer: Transfer, value: int, config: Config) -> Signature | None:
     logger.debug(f"{transfer.log_prefix}: value={_value_with_suffix(value, config)}")
     if config.token:
-        res = await transfer_token_with_retries(
+        res = await retry.transfer_token(
             3,
             config.nodes,
             config.proxies,
@@ -170,7 +170,7 @@ async def _send_tx(transfer: Transfer, value: int, config: Config) -> Signature 
             decimals=config.token_decimals,
         )
     else:
-        res = await transfer_sol_with_retries(
+        res = await retry.transfer_sol(
             3,
             config.nodes,
             config.proxies,
@@ -180,10 +180,10 @@ async def _send_tx(transfer: Transfer, value: int, config: Config) -> Signature 
             lamports=value,
         )
 
-    if res.is_error():
+    if res.is_err():
         logger.info(f"{transfer.log_prefix}: tx error {res.unwrap_error()}")
         return None
-    return res.ok
+    return res.value
 
 
 async def _transfer(transfer: Transfer, config: Config, cmd_params: TransferCmdParams) -> None:
@@ -255,12 +255,12 @@ async def _print_balances(config: Config) -> None:
 
 
 async def _get_sol_balance_str(address: str, config: Config) -> str:
-    res = await rpc.get_balance_with_retries(5, config.nodes, config.proxies, address=address)
+    res = await retry.get_sol_balance(5, config.nodes, config.proxies, address=address)
     return res.map(lambda ok: str(lamports_to_sol(ok, config.round_ndigits))).ok_or_error()
 
 
 async def _get_token_balance_str(address: str, config: Config) -> str:
     if not config.token:
         raise ValueError("token is not set")
-    res = await spl_token.get_balance_with_retries(5, config.nodes, config.proxies, owner=address, token=config.token)
+    res = await mm_sol.retry.get_token_balance(5, config.nodes, config.proxies, owner=address, token=config.token)
     return res.map(lambda ok: str(to_token(ok, config.token_decimals, ndigits=config.round_ndigits))).ok_or_error()

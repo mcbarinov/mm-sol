@@ -7,7 +7,8 @@ from mm_crypto_utils import ConfigValidators
 from mm_std import BaseConfig, fatal, print_json
 from pydantic import BeforeValidator, Field
 
-from mm_sol import converters, rpc, spl_token
+import mm_sol.retry
+from mm_sol import converters, retry
 from mm_sol.cli.validators import Validators
 
 
@@ -32,8 +33,8 @@ async def run(config_path: Path, print_config: bool) -> None:
 
     if config.tokens:
         for token_address in config.tokens:
-            res = await spl_token.get_decimals_with_retries(3, config.nodes, config.proxies, token=token_address)
-            if res.is_error():
+            res = await mm_sol.retry.get_token_decimals(3, config.nodes, config.proxies, token=token_address)
+            if res.is_err():
                 fatal(f"Failed to get decimals for token {token_address}: {res.unwrap_error()}")
 
             token_decimals = res.unwrap()
@@ -50,9 +51,9 @@ async def _get_token_balances(
     result: dict[str, Decimal | None] = {}
     for account in accounts:
         result[account] = (
-            (await spl_token.get_balance_with_retries(3, config.nodes, config.proxies, owner=account, token=token_address))
+            (await mm_sol.retry.get_token_balance(3, config.nodes, config.proxies, owner=account, token=token_address))
             .map(lambda v: converters.to_token(v, token_decimals))
-            .ok
+            .value
         )
 
     return result
@@ -62,9 +63,9 @@ async def _get_sol_balances(accounts: list[str], config: Config) -> dict[str, De
     result = {}
     for account in accounts:
         result[account] = (
-            (await rpc.get_balance_with_retries(3, config.nodes, config.proxies, address=account))
+            (await retry.get_sol_balance(3, config.nodes, config.proxies, address=account))
             .map(lambda v: converters.lamports_to_sol(v))
-            .ok
+            .value
         )
 
     return result

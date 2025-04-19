@@ -1,6 +1,6 @@
-set dotenv-load
-version := `uv run python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])'`
+set dotenv-load := true
 
+version := `uv run python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])'`
 
 clean:
     rm -rf .pytest_cache .mypy_cache .ruff_cache .coverage dist build src/*.egg-info
@@ -19,6 +19,9 @@ lint: format
     uv run ruff check src tests
     uv run mypy src
 
+lint-fix: format
+    uv run ruff check --fix src tests
+
 audit:
     uv run pip-audit
     uv run bandit -r -c "pyproject.toml" src
@@ -26,8 +29,8 @@ audit:
 publish: build
     git diff-index --quiet HEAD
     uvx twine upload dist/**
-    git tag -a 'v{{version}}' -m 'v{{version}}'
-    git push origin v{{version}}
+    git tag -a 'v{{ version }}' -m 'v{{ version }}'
+    git push origin v{{ version }}
 
 sync:
     uv sync

@@ -44,11 +44,6 @@ def test_get_leader_scheduler(testnet_node, random_proxy):
     assert len(res.unwrap()) > 10
 
 
-def test_get_block_production(testnet_node, random_proxy):
-    res = rpc_sync.get_block_production(testnet_node, proxy=random_proxy)
-    assert res.unwrap().slot > 1000
-
-
 def test_get_transaction(mainnet_node, random_proxy):
     tx_hash = "2vifJ5g4inS4spZLQMUyVstvMrCM2mg1QC9xjD6bgsiMUwp8sTE5waCdshJ8SVaH95WGtexjH3q8ot1GoKe9yK3h"
     res = rpc_sync.get_transaction(mainnet_node, tx_hash, 0, proxy=random_proxy)

@@ -91,19 +91,19 @@ def rpc_call(
 def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | None) -> Result[Any]:
     res = http_request_sync(node, method="POST", proxy=proxy, timeout=timeout, json=data)
     try:
-        if res.is_error():
-            return res.to_result_failure()
+        if res.is_err():
+            return res.to_err_result()
 
         json_body = res.parse_json_body()
         err = pydash.get(json_body, "error.message")
         if err:
-            return res.to_result_failure(f"service_error: {err}")
+            return res.to_err_result(f"service_error: {err}")
         if "result" in json_body:
-            return res.to_result_success(json_body["result"])
+            return res.to_ok_result(json_body["result"])
 
-        return res.to_result_failure("unknown_response")
+        return res.to_err_result("unknown_response")
     except Exception as e:
-        return res.to_result_failure(e)
+        return res.to_err_result(e)
 
 
 def get_balance(node: str, address: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
@@ -137,7 +137,7 @@ def get_cluster_nodes(node: str, timeout: float = 30, proxy: str | None = None) 
 
 def get_vote_accounts(node: str, timeout: float = 30, proxy: str | None = None) -> Result[list[VoteAccount]]:
     res = rpc_call(node=node, method="getVoteAccounts", timeout=timeout, proxy=proxy, params=[])
-    if res.is_error():
+    if res.is_err():
         return res
     try:
         data = res.unwrap()
@@ -174,9 +174,9 @@ def get_vote_accounts(node: str, timeout: float = 30, proxy: str | None = None) 
                     last_vote=a["lastVote"],
                 ),
             )
-        return Result.success(result, res.extra)
+        return res.with_value(result)
     except Exception as e:
-        return Result.failure(e, res.extra)
+        return res.with_error(e)
 
 
 def get_leader_scheduler(
@@ -192,23 +192,6 @@ def get_leader_scheduler(
         proxy=proxy,
         params=[slot],
     )
-
-
-def get_block_production(node: str, timeout: float = 60, proxy: str | None = None) -> Result[BlockProduction]:
-    res = rpc_call(node=node, method="getBlockProduction", timeout=timeout, proxy=proxy, params=[])
-    if res.is_error():
-        return res
-    try:
-        res_ok = res.unwrap()
-        slot = res_ok["context"]["slot"]
-        first_slot = res_ok["value"]["range"]["firstSlot"]
-        last_slot = res_ok["value"]["range"]["lastSlot"]
-        leaders = []
-        for address, (leader, produced) in res.ok["value"]["byIdentity"].items():  # type: ignore[index]
-            leaders.append(BlockProduction.Leader(address=address, produced=produced, skipped=leader - produced))
-        return Result.success(BlockProduction(slot=slot, first_slot=first_slot, last_slot=last_slot, leaders=leaders), res.extra)
-    except Exception as e:
-        return Result.failure(e, res.extra)
 
 
 def get_stake_activation(node: str, address: str, timeout: float = 60, proxy: str | None = None) -> Result[StakeActivation]:
