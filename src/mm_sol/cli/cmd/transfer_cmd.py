@@ -130,7 +130,7 @@ async def _calc_value(transfer: Transfer, config: Config, transfer_sol_fee: int)
             proxies=config.proxies,
             fee=transfer_sol_fee,
         )
-    logger.debug(f"{transfer.log_prefix}: value={value_res.ok_or_error()}")
+    logger.debug(f"{transfer.log_prefix}: value={value_res.value_or_error()}")
     if value_res.is_err():
         logger.info(f"{transfer.log_prefix}: calc value error, {value_res.unwrap_error()}")
 
@@ -256,11 +256,11 @@ async def _print_balances(config: Config) -> None:
 
 async def _get_sol_balance_str(address: str, config: Config) -> str:
     res = await retry.get_sol_balance(5, config.nodes, config.proxies, address=address)
-    return res.map(lambda ok: str(lamports_to_sol(ok, config.round_ndigits))).ok_or_error()
+    return res.map(lambda ok: str(lamports_to_sol(ok, config.round_ndigits))).value_or_error()
 
 
 async def _get_token_balance_str(address: str, config: Config) -> str:
     if not config.token:
         raise ValueError("token is not set")
     res = await mm_sol.retry.get_token_balance(5, config.nodes, config.proxies, owner=address, token=config.token)
-    return res.map(lambda ok: str(to_token(ok, config.token_decimals, ndigits=config.round_ndigits))).ok_or_error()
+    return res.map(lambda ok: str(to_token(ok, config.token_decimals, ndigits=config.round_ndigits))).value_or_error()
