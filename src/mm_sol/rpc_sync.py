@@ -79,7 +79,7 @@ def rpc_call(
     method: str,
     params: list[Any],
     id_: int = 1,
-    timeout: float = 10,
+    timeout: float = 5,
     proxy: str | None = None,
 ) -> Result[Any]:
     data = {"jsonrpc": "2.0", "method": method, "params": params, "id": id_}
@@ -106,36 +106,36 @@ def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | 
         return res.to_err(e)
 
 
-def get_balance(node: str, address: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
+def get_balance(node: str, address: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
     """Returns balance in lamports"""
     return rpc_call(node=node, method="getBalance", params=[address], timeout=timeout, proxy=proxy).map(lambda r: r["value"])
 
 
-def get_block_height(node: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
+def get_block_height(node: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
     """Returns balance in lamports"""
     return rpc_call(node=node, method="getBlockHeight", params=[], timeout=timeout, proxy=proxy)
 
 
-def get_slot(node: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
+def get_slot(node: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
     return rpc_call(node=node, method="getSlot", params=[], timeout=timeout, proxy=proxy)
 
 
-def get_epoch_info(node: str, epoch: int | None = None, timeout: float = 10, proxy: str | None = None) -> Result[EpochInfo]:
+def get_epoch_info(node: str, epoch: int | None = None, timeout: float = 5, proxy: str | None = None) -> Result[EpochInfo]:
     params = [epoch] if epoch else []
     return rpc_call(node=node, method="getEpochInfo", params=params, timeout=timeout, proxy=proxy).map(lambda r: EpochInfo(**r))
 
 
-def get_health(node: str, timeout: float = 10, proxy: str | None = None) -> Result[bool]:
+def get_health(node: str, timeout: float = 5, proxy: str | None = None) -> Result[bool]:
     return rpc_call(node=node, method="getHealth", params=[], timeout=timeout, proxy=proxy).map(lambda r: r == "ok")
 
 
-def get_cluster_nodes(node: str, timeout: float = 30, proxy: str | None = None) -> Result[list[ClusterNode]]:
+def get_cluster_nodes(node: str, timeout: float = 5, proxy: str | None = None) -> Result[list[ClusterNode]]:
     return rpc_call(node=node, method="getClusterNodes", timeout=timeout, proxy=proxy, params=[]).map(
         lambda r: [ClusterNode(**n) for n in r],
     )
 
 
-def get_vote_accounts(node: str, timeout: float = 30, proxy: str | None = None) -> Result[list[VoteAccount]]:
+def get_vote_accounts(node: str, timeout: float = 5, proxy: str | None = None) -> Result[list[VoteAccount]]:
     res = rpc_call(node=node, method="getVoteAccounts", timeout=timeout, proxy=proxy, params=[])
     if res.is_err():
         return res
@@ -182,7 +182,7 @@ def get_vote_accounts(node: str, timeout: float = 30, proxy: str | None = None) 
 def get_leader_scheduler(
     node: str,
     slot: int | None = None,
-    timeout: float = 10,
+    timeout: float = 5,
     proxy: str | None = None,
 ) -> Result[dict[str, list[int]]]:
     return rpc_call(
@@ -205,7 +205,7 @@ def get_transaction(
     signature: str,
     max_supported_transaction_version: int | None = None,
     encoding: str = "json",
-    timeout: float = 60,
+    timeout: float = 5,
     proxy: str | None = None,
 ) -> Result[dict[str, object] | None]:
     if max_supported_transaction_version is not None:

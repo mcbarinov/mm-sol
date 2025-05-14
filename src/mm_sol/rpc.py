@@ -55,7 +55,7 @@ async def _ws_call(node: str, data: dict[str, object], timeout: float) -> Result
         return Result.err(e, {"response": response})
 
 
-async def get_block_height(node: str, timeout: float = 10, proxy: str | None = None) -> Result[int]:
+async def get_block_height(node: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
     return await rpc_call(node=node, method="getBlockHeight", params=[], timeout=timeout, proxy=proxy)
 
 
