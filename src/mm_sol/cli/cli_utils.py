@@ -2,10 +2,9 @@ import importlib.metadata
 import time
 from pathlib import Path
 
-import mm_crypto_utils
+import mm_print
 from loguru import logger
-from mm_crypto_utils import Nodes, Proxies
-from mm_std import BaseConfig, print_json
+from mm_cryptocurrency import CryptocurrencyConfig, Nodes, Proxies, random_node, random_proxy
 from pydantic import BaseModel
 from solders.signature import Signature
 
@@ -21,12 +20,12 @@ class BaseConfigParams(BaseModel):
     print_config_and_exit: bool
 
 
-def print_config(config: BaseConfig, exclude: set[str] | None = None, count: set[str] | None = None) -> None:
+def print_config(config: CryptocurrencyConfig, exclude: set[str] | None = None, count: set[str] | None = None) -> None:
     data = config.model_dump(exclude=exclude)
     if count:
         for k in count:
             data[k] = len(data[k])
-    print_json(data)
+    mm_print.json(data)
 
 
 def public_rpc_url(url: str | None) -> str:
@@ -48,8 +47,8 @@ def wait_confirmation(nodes: Nodes, proxies: Proxies, signature: Signature, log_
     count = 0
     while True:
         try:
-            node = mm_crypto_utils.random_node(nodes)
-            proxy = mm_crypto_utils.random_proxy(proxies)
+            node = random_node(nodes)
+            proxy = random_proxy(proxies)
             client = get_client(node, proxy=proxy)
             res = client.get_transaction(signature)
             if res.value and res.value.slot:  # check for tx error

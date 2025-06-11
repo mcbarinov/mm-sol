@@ -3,10 +3,14 @@ import sys
 from pathlib import Path
 from typing import Annotated
 
-import mm_crypto_utils
+import mm_print
 from loguru import logger
-from mm_crypto_utils import AddressToPrivate, Transfer
-from mm_std import BaseConfig, fatal, utc_now
+from mm_cryptocurrency import CryptocurrencyConfig
+from mm_cryptocurrency.account import PrivateKeyMap
+from mm_cryptocurrency.calcs import calc_decimal_expression
+from mm_cryptocurrency.log import init_loguru
+from mm_cryptocurrency.validators import Transfer
+from mm_std import utc_now
 from pydantic import AfterValidator, BeforeValidator, Field, model_validator
 from rich.console import Console
 from rich.live import Live
@@ -21,16 +25,16 @@ from mm_sol.cli.validators import Validators
 from mm_sol.converters import lamports_to_sol, to_token
 
 
-class Config(BaseConfig):
+class Config(CryptocurrencyConfig):
     nodes: Annotated[list[str], BeforeValidator(Validators.nodes())]
     transfers: Annotated[list[Transfer], BeforeValidator(Validators.sol_transfers())]
-    private_keys: Annotated[AddressToPrivate, BeforeValidator(Validators.sol_private_keys())]
+    private_keys: Annotated[PrivateKeyMap, BeforeValidator(Validators.sol_private_keys())]
     proxies: Annotated[list[str], Field(default_factory=list), BeforeValidator(Validators.proxies())]
     token: Annotated[str | None, AfterValidator(Validators.sol_address())] = None
     token_decimals: int = -1
     default_value: Annotated[str | None, AfterValidator(Validators.valid_sol_or_token_expression("balance"))] = None
     value_min_limit: Annotated[str | None, AfterValidator(Validators.valid_sol_or_token_expression())] = None
-    delay: Annotated[str | None, AfterValidator(Validators.valid_calc_decimal_value())] = None  # in seconds
+    delay: Annotated[str | None, AfterValidator(Validators.decimal_expression())] = None  # in seconds
     round_ndigits: int = 5
     log_debug: Annotated[Path | None, BeforeValidator(Validators.log_file())] = None
     log_info: Annotated[Path | None, BeforeValidator(Validators.log_file())] = None
@@ -65,7 +69,7 @@ class Config(BaseConfig):
         if self.token:
             res = await mm_sol.retry.get_token_decimals(3, self.nodes, self.proxies, token=self.token)
             if res.is_err():
-                fatal(f"can't get decimals for token={self.token}, error={res.unwrap_error()}")
+                mm_print.fatal(f"can't get decimals for token={self.token}, error={res.unwrap_err()}")
             self.token_decimals = res.unwrap()
 
         return self
@@ -99,13 +103,13 @@ async def run(cmd_params: TransferCmdParams) -> None:
 
 
 async def _run_transfers(config: Config, cmd_params: TransferCmdParams) -> None:
-    mm_crypto_utils.init_logger(cmd_params.debug, config.log_debug, config.log_info)
+    init_loguru(cmd_params.debug, config.log_debug, config.log_info)
     logger.info(f"transfer {cmd_params.config_path}: started at {utc_now()} UTC")
     logger.debug(f"config={config.model_dump(exclude={'private_keys'}) | {'version': cli_utils.get_version()}}")
     for i, route in enumerate(config.transfers):
         await _transfer(route, config, cmd_params)
         if config.delay is not None and i < len(config.transfers) - 1:
-            delay_value = mm_crypto_utils.calc_decimal_value(config.delay)
+            delay_value = calc_decimal_expression(config.delay)
             logger.info(f"delay {delay_value} seconds")
             if not cmd_params.emulate:
                 await asyncio.sleep(float(delay_value))
@@ -132,7 +136,7 @@ async def _calc_value(transfer: Transfer, config: Config, transfer_sol_fee: int)
         )
     logger.debug(f"{transfer.log_prefix}: value={value_res.value_or_error()}")
     if value_res.is_err():
-        logger.info(f"{transfer.log_prefix}: calc value error, {value_res.unwrap_error()}")
+        logger.info(f"{transfer.log_prefix}: calc value error, {value_res.unwrap_err()}")
 
     return value_res.value
 
@@ -181,7 +185,7 @@ async def _send_tx(transfer: Transfer, value: int, config: Config) -> Signature 
         )
 
     if res.is_err():
-        logger.info(f"{transfer.log_prefix}: tx error {res.unwrap_error()}")
+        logger.info(f"{transfer.log_prefix}: tx error {res.unwrap_err()}")
         return None
     return res.value
 

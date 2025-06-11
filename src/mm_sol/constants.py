@@ -1,1 +1,1 @@
-SUFFIX_DECIMALS = {"sol": 9}
+UNIT_DECIMALS = {"sol": 9}

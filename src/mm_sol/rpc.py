@@ -3,7 +3,8 @@ from collections.abc import Sequence
 from typing import Any
 
 import websockets
-from mm_std import Result, http_request
+from mm_http import http_request
+from mm_result import Result
 
 
 async def rpc_call(
@@ -23,17 +24,17 @@ async def rpc_call(
 async def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | None) -> Result[Any]:
     res = await http_request(node, method="POST", proxy=proxy, timeout=timeout, json=data)
     if res.is_err():
-        return res.to_err()
+        return res.to_result_err()
     try:
         parsed_body = res.parse_json_body()
         err = parsed_body.get("error", {}).get("message", "")
         if err:
-            return res.to_err(f"service_error: {err}")
+            return res.to_result_err(f"service_error: {err}")
         if "result" in parsed_body:
-            return res.to_ok(parsed_body["result"])
-        return res.to_err("unknown_response")
+            return res.to_result_ok(parsed_body["result"])
+        return res.to_result_err("unknown_response")
     except Exception as e:
-        return res.to_err(e)
+        return res.to_result_err(e)
 
 
 async def _ws_call(node: str, data: dict[str, object], timeout: float) -> Result[Any]:

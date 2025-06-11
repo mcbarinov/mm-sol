@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-import mm_crypto_utils
-from mm_std import print_json
+import mm_print
+from mm_cryptocurrency import fetch_proxies
 from pydantic import BaseModel, Field
 
 import mm_sol.retry
@@ -43,14 +43,14 @@ async def run(
 
     rpc_url = cli_utils.public_rpc_url(rpc_url)
 
-    proxies = await mm_crypto_utils.fetch_proxies_or_fatal(proxies_url) if proxies_url else None
+    proxies = (await fetch_proxies(proxies_url)).unwrap() if proxies_url else None
 
     # sol balance
     sol_balance_res = await retry.get_sol_balance(3, rpc_url, proxies, address=wallet_address)
     if sol_balance_res.is_ok():
         result.sol_balance = sol_balance_res.unwrap()
     else:
-        result.errors.append("sol_balance: " + sol_balance_res.unwrap_error())
+        result.errors.append("sol_balance: " + sol_balance_res.unwrap_err())
 
     # token balance
     if token_address:
@@ -59,15 +59,15 @@ async def run(
         if token_balance_res.is_ok():
             result.token_balance = token_balance_res.unwrap()
         else:
-            result.errors.append("token_balance: " + token_balance_res.unwrap_error())
+            result.errors.append("token_balance: " + token_balance_res.unwrap_err())
 
         decimals_res = await mm_sol.retry.get_token_decimals(3, rpc_url, proxies, token=token_address)
         if decimals_res.is_ok():
             result.token_decimals = decimals_res.unwrap()
         else:
-            result.errors.append("token_decimals: " + decimals_res.unwrap_error())
+            result.errors.append("token_decimals: " + decimals_res.unwrap_err())
 
     if lamport:
-        print_json(result)
+        mm_print.json(result)
     else:
-        print_json(result.to_human_readable())
+        mm_print.json(result.to_human_readable())

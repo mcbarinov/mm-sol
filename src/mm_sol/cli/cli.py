@@ -3,8 +3,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
+import mm_print
 import typer
-from mm_std import print_plain
 
 from mm_sol.account import PHANTOM_DERIVATION_PATH
 
@@ -24,7 +24,7 @@ app.add_typer(wallet_app, name="w", hidden=True)
 
 def version_callback(value: bool) -> None:
     if value:
-        print_plain(f"mm-sol: {cli_utils.get_version()}")
+        mm_print.plain(f"mm-sol: {cli_utils.get_version()}")
         raise typer.Exit
 
 

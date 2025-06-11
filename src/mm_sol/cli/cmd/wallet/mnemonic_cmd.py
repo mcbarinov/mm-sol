@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from typing import Any
 
-from mm_std import print_json
+import mm_print
 
 from mm_sol.account import derive_accounts, generate_mnemonic
 
@@ -16,4 +16,4 @@ def run(mnemonic: str, passphrase: str, words: int, derivation_path: str, limit:
     accounts = derive_accounts(mnemonic=mnemonic, passphrase=passphrase, derivation_path=derivation_path, limit=limit)
 
     result["accounts"] = [asdict(acc) for acc in accounts]
-    print_json(result)
+    mm_print.json(result)

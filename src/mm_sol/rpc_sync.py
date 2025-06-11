@@ -1,7 +1,8 @@
 from typing import Any
 
 import pydash
-from mm_std import Result, http_request_sync
+from mm_http import http_request_sync
+from mm_result import Result
 from pydantic import BaseModel, ConfigDict, Field
 
 DEFAULT_MAINNET_RPC = "https://api.mainnet-beta.solana.com"
@@ -92,18 +93,18 @@ def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | 
     res = http_request_sync(node, method="POST", proxy=proxy, timeout=timeout, json=data)
     try:
         if res.is_err():
-            return res.to_err()
+            return res.to_result_err()
 
         json_body = res.parse_json_body()
         err = pydash.get(json_body, "error.message")
         if err:
-            return res.to_err(f"service_error: {err}")
+            return res.to_result_err(f"service_error: {err}")
         if "result" in json_body:
-            return res.to_ok(json_body["result"])
+            return res.to_result_ok(json_body["result"])
 
-        return res.to_err("unknown_response")
+        return res.to_result_err("unknown_response")
     except Exception as e:
-        return res.to_err(e)
+        return res.to_result_err(e)
 
 
 def get_balance(node: str, address: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:

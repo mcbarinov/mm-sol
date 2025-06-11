@@ -1,4 +1,4 @@
-from mm_std import Result
+from mm_result import Result
 from solana.exceptions import SolanaRpcException
 from solana.rpc.core import RPCException
 from solders.solders import InvalidParamsMessage, Pubkey, get_associated_token_address

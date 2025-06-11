@@ -1,9 +1,11 @@
 from collections.abc import Callable
 
-from mm_crypto_utils import AddressToPrivate, ConfigValidators, Transfer
+from mm_cryptocurrency import ConfigValidators
+from mm_cryptocurrency.account import PrivateKeyMap
+from mm_cryptocurrency.validators import Transfer
 
 from mm_sol.account import get_public_key, is_address
-from mm_sol.constants import SUFFIX_DECIMALS
+from mm_sol.constants import UNIT_DECIMALS
 
 
 class Validators(ConfigValidators):
@@ -20,17 +22,17 @@ class Validators(ConfigValidators):
         return ConfigValidators.transfers(is_address)
 
     @staticmethod
-    def sol_private_keys() -> Callable[[str], AddressToPrivate]:
+    def sol_private_keys() -> Callable[[str], PrivateKeyMap]:
         return ConfigValidators.private_keys(get_public_key)
 
     @staticmethod
     def valid_sol_expression(var_name: str | None = None) -> Callable[[str], str]:
-        return ConfigValidators.valid_calc_int_expression(var_name, SUFFIX_DECIMALS)
+        return ConfigValidators.expression_with_vars(var_name, UNIT_DECIMALS)
 
     @staticmethod
     def valid_token_expression(var_name: str | None = None) -> Callable[[str], str]:
-        return ConfigValidators.valid_calc_int_expression(var_name, {"t": 6})
+        return ConfigValidators.expression_with_vars(var_name, {"t": 6})
 
     @staticmethod
     def valid_sol_or_token_expression(var_name: str | None = None) -> Callable[[str], str]:
-        return ConfigValidators.valid_calc_int_expression(var_name, SUFFIX_DECIMALS | {"t": 6})
+        return ConfigValidators.expression_with_vars(var_name, UNIT_DECIMALS | {"t": 6})

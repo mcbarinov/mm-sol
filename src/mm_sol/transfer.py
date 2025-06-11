@@ -1,5 +1,5 @@
 import pydash
-from mm_std import Result
+from mm_result import Result
 from pydantic import BaseModel
 from solders.message import Message
 from solders.pubkey import Pubkey

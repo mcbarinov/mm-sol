@@ -1,5 +1,5 @@
-from mm_crypto_utils import Nodes, Proxies, retry_with_node_and_proxy
-from mm_std import Result
+from mm_cryptocurrency import Nodes, Proxies, retry_with_node_and_proxy
+from mm_result import Result
 from solders.solders import Pubkey, Signature
 
 from mm_sol import rpc, spl_token, transfer
