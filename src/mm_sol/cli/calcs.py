@@ -1,6 +1,6 @@
-from mm_cryptocurrency import Nodes, Proxies
-from mm_cryptocurrency.calcs import calc_expression_with_vars
 from mm_result import Result
+from mm_web3 import Nodes, Proxies
+from mm_web3.calcs import calc_expression_with_vars
 
 from mm_sol import retry
 from mm_sol.constants import UNIT_DECIMALS

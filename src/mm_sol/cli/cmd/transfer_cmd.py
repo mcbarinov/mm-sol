@@ -5,12 +5,12 @@ from typing import Annotated
 
 import mm_print
 from loguru import logger
-from mm_cryptocurrency import CryptocurrencyConfig
-from mm_cryptocurrency.account import PrivateKeyMap
-from mm_cryptocurrency.calcs import calc_decimal_expression
-from mm_cryptocurrency.log import init_loguru
-from mm_cryptocurrency.validators import Transfer
 from mm_std import utc_now
+from mm_web3 import Web3CliConfig
+from mm_web3.account import PrivateKeyMap
+from mm_web3.calcs import calc_decimal_expression
+from mm_web3.log import init_loguru
+from mm_web3.validators import Transfer
 from pydantic import AfterValidator, BeforeValidator, Field, model_validator
 from rich.console import Console
 from rich.live import Live
@@ -25,7 +25,7 @@ from mm_sol.cli.validators import Validators
 from mm_sol.converters import lamports_to_sol, to_token
 
 
-class Config(CryptocurrencyConfig):
+class Config(Web3CliConfig):
     nodes: Annotated[list[str], BeforeValidator(Validators.nodes())]
     transfers: Annotated[list[Transfer], BeforeValidator(Validators.sol_transfers())]
     private_keys: Annotated[PrivateKeyMap, BeforeValidator(Validators.sol_private_keys())]

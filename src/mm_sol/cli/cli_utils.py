@@ -4,7 +4,7 @@ from pathlib import Path
 
 import mm_print
 from loguru import logger
-from mm_cryptocurrency import CryptocurrencyConfig, Nodes, Proxies, random_node, random_proxy
+from mm_web3 import Nodes, Proxies, Web3CliConfig, random_node, random_proxy
 from pydantic import BaseModel
 from solders.signature import Signature
 
@@ -20,7 +20,7 @@ class BaseConfigParams(BaseModel):
     print_config_and_exit: bool
 
 
-def print_config(config: CryptocurrencyConfig, exclude: set[str] | None = None, count: set[str] | None = None) -> None:
+def print_config(config: Web3CliConfig, exclude: set[str] | None = None, count: set[str] | None = None) -> None:
     data = config.model_dump(exclude=exclude)
     if count:
         for k in count:

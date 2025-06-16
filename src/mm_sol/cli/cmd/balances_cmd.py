@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import mm_print
-from mm_cryptocurrency import ConfigValidators, CryptocurrencyConfig
+from mm_web3 import ConfigValidators, Web3CliConfig
 from pydantic import BeforeValidator, Field
 
 import mm_sol.retry
@@ -12,7 +12,7 @@ from mm_sol import converters, retry
 from mm_sol.cli.validators import Validators
 
 
-class Config(CryptocurrencyConfig):
+class Config(Web3CliConfig):
     accounts: Annotated[list[str], BeforeValidator(Validators.sol_addresses(unique=True))]
     tokens: Annotated[list[str], BeforeValidator(Validators.sol_addresses(unique=True))]
     nodes: Annotated[list[str], BeforeValidator(ConfigValidators.nodes())]

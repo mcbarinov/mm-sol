@@ -1,9 +1,9 @@
 import os
 
-import mm_cryptocurrency
+import mm_web3
 import pytest
 from dotenv import load_dotenv
-from mm_cryptocurrency import fetch_proxies_sync
+from mm_web3 import fetch_proxies_sync
 from typer.testing import CliRunner
 
 load_dotenv()
@@ -117,7 +117,7 @@ def proxies() -> list[str]:
 
 @pytest.fixture
 def random_proxy(proxies) -> str | None:
-    return mm_cryptocurrency.random_proxy(proxies)
+    return mm_web3.random_proxy(proxies)
 
 
 @pytest.fixture

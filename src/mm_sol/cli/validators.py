@@ -1,8 +1,8 @@
 from collections.abc import Callable
 
-from mm_cryptocurrency import ConfigValidators
-from mm_cryptocurrency.account import PrivateKeyMap
-from mm_cryptocurrency.validators import Transfer
+from mm_web3 import ConfigValidators
+from mm_web3.account import PrivateKeyMap
+from mm_web3.validators import Transfer
 
 from mm_sol.account import get_public_key, is_address
 from mm_sol.constants import UNIT_DECIMALS
