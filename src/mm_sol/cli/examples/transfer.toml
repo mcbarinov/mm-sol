@@ -3,7 +3,7 @@
 # value is an expression that can contain variable 'balance' and 'random' function
 transfers = """
 # for sol transfer use 'sol' suffix, example: 1.2sol. For other tokens use 't' suffix, example: 1.2t
-Bd8CxCTLez2ckVTqEJjuZkWjYFSRbo8fA1qYbd7yFVP9 Eaft9xXzfgbRqsHd65WspoaxTtH7pkznM9YA8tsDKGwj 1.2t 
+Bd8CxCTLez2ckVTqEJjuZkWjYFSRbo8fA1qYbd7yFVP9 Eaft9xXzfgbRqsHd65WspoaxTtH7pkznM9YA8tsDKGwj 1.2t
 Fc2TRJVCpFZpRz56mFnQETctib1zwFnwHcS7HoQSgUzZ EVJctTWikt29rUXBf49tyQdK87x837HtvpCwqeSjp1Ur 0.6balance-random(1t,2.50t)-100
 6TW4WswDgGmEB5HELBtEdwC1tQJq9Xa1msDjPw94sgai GGb7gb5EzW8GZZWX552eiC9r1SY4Pqtgbqf9UMrBrEzy # default_value will be used
 file: /path/to/other/transfers.txt # transfers from this file will be added

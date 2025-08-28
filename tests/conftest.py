@@ -99,14 +99,6 @@ def binance_wallet():
     return "2ojv9BAiHUrvsm9gxDe7fJSzbNZSJcxZvf8dqmWGHG8S"
 
 
-@pytest.fixture
-def proxy() -> str:
-    value = os.getenv("PROXY")
-    if value is None:
-        pytest.skip("PROXY environment variable not set")
-    return value
-
-
 @pytest.fixture(scope="session")
 def proxies() -> list[str]:
     proxies_url = os.getenv("PROXIES_URL")

@@ -1,5 +1,5 @@
 # mm-sol
-A Python library and cli tool for interacting with Solana blockchain. It's based on https://github.com/michaelhly/solana-py 
+A Python library and cli tool for interacting with Solana blockchain. It's based on https://github.com/michaelhly/solana-py
 
 ### Install on Ubuntu
 ```shell
@@ -10,4 +10,4 @@ uv tool install mm-sol
 ```
 
 ### Notes
-- AsyncClient from solana-py with socks5 proxy ignores timeout. Use http proxy. 
+- AsyncClient from solana-py with socks5 proxy ignores timeout. Use http proxy.

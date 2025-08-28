@@ -17,7 +17,7 @@ def test_sol_to_lamports():
 
 def test_to_lamports():
     assert to_lamports(123) == 123
-    assert to_lamports(Decimal("123")) == 123
+    assert to_lamports(Decimal(123)) == 123
     assert to_lamports("123") == 123
     assert to_lamports("123.1 sol") == 123.1 * 10**9
     assert to_lamports("123.1sol") == 123.1 * 10**9

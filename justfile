@@ -15,12 +15,9 @@ format:
 test:
     uv run pytest -n auto tests
 
-lint: format
-    uv run ruff check src tests
+lint *args: format pre-commit
+    uv run ruff check {{args}} src tests
     uv run mypy src
-
-lint-fix: format
-    uv run ruff check --fix src tests
 
 audit:
     uv export --no-dev --all-extras --format requirements-txt --no-emit-project > requirements.txt
@@ -36,3 +33,9 @@ publish: build
 
 sync:
     uv sync
+
+pre-commit:
+    uv run pre-commit run --all-files
+
+pre-commit-autoupdate:
+    uv run pre-commit autoupdate
