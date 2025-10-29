@@ -35,7 +35,7 @@ async def run(config_path: Path, print_config: bool) -> None:
         for token_address in config.tokens:
             res = await mm_sol.retry.get_token_decimals(3, config.nodes, config.proxies, token=token_address)
             if res.is_err():
-                mm_print.fatal(f"Failed to get decimals for token {token_address}: {res.unwrap_err()}")
+                mm_print.exit_with_error(f"Failed to get decimals for token {token_address}: {res.unwrap_err()}")
 
             token_decimals = res.unwrap()
             result[token_address] = await _get_token_balances(token_address, token_decimals, config.accounts, config)

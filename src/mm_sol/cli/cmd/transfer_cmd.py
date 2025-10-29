@@ -69,7 +69,7 @@ class Config(Web3CliConfig):
         if self.token:
             res = await mm_sol.retry.get_token_decimals(3, self.nodes, self.proxies, token=self.token)
             if res.is_err():
-                mm_print.fatal(f"can't get decimals for token={self.token}, error={res.unwrap_err()}")
+                mm_print.exit_with_error(f"can't get decimals for token={self.token}, error={res.unwrap_err()}")
             self.token_decimals = res.unwrap()
 
         return self

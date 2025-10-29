@@ -95,7 +95,7 @@ def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | 
         if res.is_err():
             return res.to_result_err()
 
-        json_body = res.parse_json_body()
+        json_body = res.parse_json()
         err = pydash.get(json_body, "error.message")
         if err:
             return res.to_result_err(f"service_error: {err}")
