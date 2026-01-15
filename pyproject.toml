@@ -1,16 +1,16 @@
 [project]
 name = "mm-sol"
-version = "0.7.3"
+version = "0.7.4"
 description = ""
 requires-python = ">=3.13"
 dependencies = [
-    "mm-web3~=0.5.4",
-    "solana~=0.36.9",
+    "mm-web3~=0.5.6",
+    "solana~=0.36.11",
     "base58~=2.1.1",
     "mnemonic==0.21",
-    "typer>=0.16.1",
-    "jinja2>=3.1.6",
-    "socksio>=1.0.0",
+    "typer~=0.21.1",
+    "jinja2~=3.1.6",
+    # "socksio>=1.0.0",
 ]
 [project.scripts]
 mm-sol = "mm_sol.cli.cli:app"
@@ -21,15 +21,15 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "pytest~=8.4.2",
-    "pytest-asyncio~=1.2.0",
+    "bandit~=1.9.2",
+    "mypy~=1.19.1",
+    "pip-audit~=2.10.0",
+    "pre-commit~=4.5.1",
+    "pytest~=9.0.2",
+    "pytest-asyncio~=1.3.0",
     "pytest-xdist~=3.8.0",
-    "ruff~=0.14.2",
-    "pip-audit~=2.9.0",
-    "bandit~=1.8.6",
-    "mypy~=1.18.2",
-    "pre-commit~=4.3.0",
-    "python-dotenv~=1.2.1",
+    "ruff~=0.14.11",
+    "python-dotenv~=1.2.0",
 ]
 
 [tool.mypy]
