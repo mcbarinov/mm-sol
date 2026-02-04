@@ -1,3 +1,5 @@
+"""SOL and SPL token transfer operations."""
+
 import pydash
 from mm_result import Result
 from pydantic import BaseModel
@@ -27,6 +29,7 @@ async def transfer_token(
     timeout: float = 10,
     create_token_account_if_not_exists: bool = True,
 ) -> Result[Signature]:
+    """Transfer SPL tokens, optionally creating the recipient's token account."""
     # TODO: try/except this function!!!
     acc = get_keypair(private_key)
     if not check_private_key(from_address, private_key):
@@ -74,6 +77,7 @@ async def transfer_sol(
     proxy: str | None = None,
     timeout: float = 10,
 ) -> Result[Signature]:
+    """Transfer SOL from one account to another."""
     acc = get_keypair(private_key)
     if not check_private_key(from_address, private_key):
         return Result.err("invalid_private_key")
@@ -93,12 +97,15 @@ async def transfer_sol(
 
 
 class SolTransferInfo(BaseModel):
+    """Parsed SOL transfer from a transaction's instructions."""
+
     source: str
     destination: str
     lamports: int
 
 
 def find_sol_transfers(node: str, tx_signature: str) -> Result[list[SolTransferInfo]]:
+    """Parse SOL transfer instructions from a transaction signature."""
     res = rpc_sync.get_transaction(node, tx_signature, encoding="jsonParsed")
     if res.is_err():
         return res  # type: ignore[return-value]
@@ -115,4 +122,4 @@ def find_sol_transfers(node: str, tx_signature: str) -> Result[list[SolTransferI
                     result.append(SolTransferInfo(source=source, destination=destination, lamports=lamports))
         return res.with_value(result)
     except Exception as e:
-        return Result.err(e, res.extra)
+        return Result.err(e, res.context)

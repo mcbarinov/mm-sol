@@ -1,3 +1,5 @@
+"""Tests for Solana account management functions."""
+
 from mm_sol.account import (
     PHANTOM_DERIVATION_PATH,
     DerivedAccount,
@@ -14,6 +16,7 @@ from mm_sol.account import (
 
 
 def test_check_private_key():
+    """Verify private key validation with array, list, and base58 formats."""
     public_key = "2b8bUknUbyLmUdKPH6o4jUbgNeztKSVwCN5w2QtEm61r"
     private_key = "[100,43,148,189,179,174,228,31,193,2,233,109,26,249,247,176,51,187,172,105,83,69,170,251,45,160,23,57,212,255,9,236,23,154,5,130,7,89,91,131,59,109,150,73,105,110,198,19,222,132,173,40,62,99,162,166,44,212,129,180,49,177,253,181]"  # noqa: E501
     assert check_private_key(public_key, private_key)
@@ -93,6 +96,7 @@ def test_check_private_key():
 
 
 def test_generate_account():
+    """Verify generated accounts are unique and have correct key length."""
     acc_1 = generate_account()
     acc_2 = generate_account()
 
@@ -101,6 +105,7 @@ def test_generate_account():
 
 
 def test_get_keypair():
+    """Verify keypair creation from base58 and array private keys."""
     acc = get_keypair("2nNCy96F9b11mnbrhmKn1ETdFEc6uEfaVaM5e9crn1qJmVMZnt6bMqBYhVDZt5BrhaYToJyZznK1twgF77sm63Re")
     assert str(acc.pubkey()) == "5pPavVyApDBxVQfssMGDY25dGdUfC27pTn4PygRPzFmn"
 
@@ -111,35 +116,41 @@ def test_get_keypair():
 
 
 def test_get_public_key():
+    """Verify public key derivation from a private key."""
     private_key = "2eP4yM63zQxBkoF2Rzzmank9AQ2qiPJExxb7AZ95UPxUpHf8XWgYpy7C5ZNy6zU3jj4nYPD1ijK4EzLLZDwkxZXM"
     assert get_public_key(private_key) == "9wkxjGXrRhHB9pFZrEpQKBKAJ52jMjVUahnVNezJFvL7"
 
 
 def test_get_private_key_base58():
+    """Verify array-to-base58 private key conversion."""
     private_key = "[82,64,164,208,0,155,36,201,208,109,43,74,205,156,170,228,146,161,5,178,220,84,195,1,26,161,196,249,242,208,176,186,132,228,144,215,19,161,75,120,161,187,133,19,177,120,198,161,218,5,75,159,126,193,98,18,233,227,129,128,197,153,227,104]"  # noqa: E501
     res = "2eP4yM63zQxBkoF2Rzzmank9AQ2qiPJExxb7AZ95UPxUpHf8XWgYpy7C5ZNy6zU3jj4nYPD1ijK4EzLLZDwkxZXM"
     assert get_private_key_base58(private_key) == res
 
 
 def test_get_private_key_arr_str():
+    """Verify base58-to-array private key conversion."""
     private_key = "2eP4yM63zQxBkoF2Rzzmank9AQ2qiPJExxb7AZ95UPxUpHf8XWgYpy7C5ZNy6zU3jj4nYPD1ijK4EzLLZDwkxZXM"
     res = "[82,64,164,208,0,155,36,201,208,109,43,74,205,156,170,228,146,161,5,178,220,84,195,1,26,161,196,249,242,208,176,186,132,228,144,215,19,161,75,120,161,187,133,19,177,120,198,161,218,5,75,159,126,193,98,18,233,227,129,128,197,153,227,104]"  # noqa: E501
     assert get_private_key_arr_str(private_key) == res
 
 
 def test_is_valid_pubkey():
+    """Verify address validation for valid and invalid public keys."""
     assert is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuan")
     assert is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuaN")
     assert not is_address("9nmjQrSpmf51BxcQu6spWD8w4jUzPVrtmtPbDGLyDuama")
 
 
 def test_generate_mnemonic():
+    """Verify mnemonic generation with different word counts and uniqueness."""
     assert len(generate_mnemonic().split()) == 24
     assert len(generate_mnemonic(12).split()) == 12
     assert generate_mnemonic() != generate_mnemonic()
 
 
 def test_derive_accounts():
+    """Verify account derivation from mnemonic with Phantom path."""
     mnemonic = "cotton limit tube replace sister flight double muffin health neutral hill maid"
     passphrase = "my-secret"
     res = derive_accounts(mnemonic=mnemonic, passphrase=passphrase, derivation_path=PHANTOM_DERIVATION_PATH, limit=10)

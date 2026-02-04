@@ -1,3 +1,5 @@
+"""Synchronous Solana JSON-RPC client and response models."""
+
 from typing import Any
 
 import pydash
@@ -6,10 +8,15 @@ from mm_result import Result
 from pydantic import BaseModel, ConfigDict, Field
 
 DEFAULT_MAINNET_RPC = "https://api.mainnet-beta.solana.com"
+"""Default Solana mainnet RPC endpoint."""
+
 DEFAULT_TESTNET_RPC = "https://api.testnet.solana.com"
+"""Default Solana testnet RPC endpoint."""
 
 
 class EpochInfo(BaseModel):
+    """Solana epoch information from getEpochInfo RPC call."""
+
     model_config = ConfigDict(populate_by_name=True)
 
     epoch: int
@@ -21,10 +28,13 @@ class EpochInfo(BaseModel):
 
     @property
     def progress(self) -> float:
+        """Return epoch progress as a percentage."""
         return round(self.slot_index / self.slots_in_epoch * 100, 2)
 
 
 class ClusterNode(BaseModel):
+    """A node in the Solana cluster from getClusterNodes."""
+
     pubkey: str
     version: str | None
     gossip: str | None
@@ -32,7 +42,11 @@ class ClusterNode(BaseModel):
 
 
 class VoteAccount(BaseModel):
+    """Validator vote account with stake and credit info."""
+
     class EpochCredits(BaseModel):
+        """Credits earned by a validator in a single epoch."""
+
         epoch: int
         credits: int
         previous_credits: int
@@ -49,7 +63,11 @@ class VoteAccount(BaseModel):
 
 
 class BlockProduction(BaseModel):
+    """Block production statistics for a slot range."""
+
     class Leader(BaseModel):
+        """Per-leader block production stats."""
+
         address: str
         produced: int
         skipped: int
@@ -61,14 +79,18 @@ class BlockProduction(BaseModel):
 
     @property
     def total_produced(self) -> int:
+        """Return total blocks produced across all leaders."""
         return sum(leader.produced for leader in self.leaders)
 
     @property
     def total_skipped(self) -> int:
+        """Return total blocks skipped across all leaders."""
         return sum(leader.skipped for leader in self.leaders)
 
 
 class StakeActivation(BaseModel):
+    """Stake activation status for a stake account."""
+
     state: str
     active: int
     inactive: int
@@ -83,6 +105,7 @@ def rpc_call(
     timeout: float = 5,
     proxy: str | None = None,
 ) -> Result[Any]:
+    """Send a synchronous JSON-RPC request to a Solana node."""
     data = {"jsonrpc": "2.0", "method": method, "params": params, "id": id_}
     if node.startswith("http"):
         return _http_call(node, data, timeout, proxy)
@@ -90,12 +113,13 @@ def rpc_call(
 
 
 def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | None) -> Result[Any]:
+    """Execute a synchronous RPC call over HTTP."""
     res = http_request_sync(node, method="POST", proxy=proxy, timeout=timeout, json=data)
     try:
         if res.is_err():
             return res.to_result_err()
 
-        json_body = res.parse_json()
+        json_body = res.json_body().unwrap("invalid_json")
         err = pydash.get(json_body, "error.message")
         if err:
             return res.to_result_err(f"service_error: {err}")
@@ -108,35 +132,40 @@ def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | 
 
 
 def get_balance(node: str, address: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
-    """Returns balance in lamports"""
+    """Return balance in lamports."""
     return rpc_call(node=node, method="getBalance", params=[address], timeout=timeout, proxy=proxy).map(lambda r: r["value"])
 
 
 def get_block_height(node: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
-    """Returns balance in lamports"""
+    """Return the current block height."""
     return rpc_call(node=node, method="getBlockHeight", params=[], timeout=timeout, proxy=proxy)
 
 
 def get_slot(node: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
+    """Return the current slot number."""
     return rpc_call(node=node, method="getSlot", params=[], timeout=timeout, proxy=proxy)
 
 
 def get_epoch_info(node: str, epoch: int | None = None, timeout: float = 5, proxy: str | None = None) -> Result[EpochInfo]:
+    """Return epoch information, optionally for a specific epoch."""
     params = [epoch] if epoch else []
     return rpc_call(node=node, method="getEpochInfo", params=params, timeout=timeout, proxy=proxy).map(lambda r: EpochInfo(**r))
 
 
 def get_health(node: str, timeout: float = 5, proxy: str | None = None) -> Result[bool]:
+    """Check whether the node is healthy."""
     return rpc_call(node=node, method="getHealth", params=[], timeout=timeout, proxy=proxy).map(lambda r: r == "ok")
 
 
 def get_cluster_nodes(node: str, timeout: float = 5, proxy: str | None = None) -> Result[list[ClusterNode]]:
+    """Return the list of cluster nodes."""
     return rpc_call(node=node, method="getClusterNodes", timeout=timeout, proxy=proxy, params=[]).map(
         lambda r: [ClusterNode(**n) for n in r],
     )
 
 
 def get_vote_accounts(node: str, timeout: float = 5, proxy: str | None = None) -> Result[list[VoteAccount]]:
+    """Return current and delinquent vote accounts."""
     res = rpc_call(node=node, method="getVoteAccounts", timeout=timeout, proxy=proxy, params=[])
     if res.is_err():
         return res
@@ -186,6 +215,7 @@ def get_leader_scheduler(
     timeout: float = 5,
     proxy: str | None = None,
 ) -> Result[dict[str, list[int]]]:
+    """Return the leader schedule, optionally for a specific slot."""
     return rpc_call(
         node=node,
         method="getLeaderSchedule",
@@ -196,6 +226,7 @@ def get_leader_scheduler(
 
 
 def get_stake_activation(node: str, address: str, timeout: float = 60, proxy: str | None = None) -> Result[StakeActivation]:
+    """Return stake activation status for a stake account address."""
     return rpc_call(node=node, method="getStakeActivation", timeout=timeout, proxy=proxy, params=[address]).map(
         lambda ok: StakeActivation(**ok),
     )
@@ -209,6 +240,7 @@ def get_transaction(
     timeout: float = 5,
     proxy: str | None = None,
 ) -> Result[dict[str, object] | None]:
+    """Return transaction details for a given signature."""
     if max_supported_transaction_version is not None:
         params = [signature, {"maxSupportedTransactionVersion": max_supported_transaction_version, "encoding": encoding}]
     else:

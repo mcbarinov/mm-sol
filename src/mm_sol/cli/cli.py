@@ -1,10 +1,12 @@
+"""Main CLI entry point and command definitions for mm-sol."""
+
 import asyncio
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
 
-import mm_print
 import typer
+from mm_print import print_plain
 
 from mm_sol.account import PHANTOM_DERIVATION_PATH
 
@@ -13,8 +15,10 @@ from .cmd import balance_cmd, balances_cmd, example_cmd, node_cmd, transfer_cmd
 from .cmd.transfer_cmd import TransferCmdParams
 from .cmd.wallet import keypair_cmd, mnemonic_cmd
 
+"""Main CLI application."""
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False, add_completion=False)
 
+"""Wallet subcommand group."""
 wallet_app = typer.Typer(
     no_args_is_help=True, help="Wallet-related commands: generate new accounts, derive addresses from private keys, and more"
 )
@@ -23,23 +27,27 @@ app.add_typer(wallet_app, name="w", hidden=True)
 
 
 def version_callback(value: bool) -> None:
+    """Print version and exit when --version is passed."""
     if value:
-        mm_print.plain(f"mm-sol: {cli_utils.get_version()}")
+        print_plain(f"mm-sol: {cli_utils.get_version()}")
         raise typer.Exit
 
 
 @app.callback()
 def main(_version: bool = typer.Option(None, "--version", callback=version_callback, is_eager=True)) -> None:
-    pass
+    """Solana CLI tool."""
 
 
-class ConfigExample(str, Enum):
+class ConfigExample(StrEnum):
+    """Available example configuration names."""
+
     balances = "balances"
     transfer = "transfer"
 
 
 @app.command(name="example", help="Displays an example configuration for a command")
 def example_command(command: Annotated[ConfigExample, typer.Argument()]) -> None:
+    """Display an example configuration for the given command."""
     example_cmd.run(command.value)
 
 
@@ -51,6 +59,7 @@ def balance_command(
     proxies_url: Annotated[str, typer.Option("--proxies-url", envvar="MM_SOL_PROXIES_URL")] = "",  # nosec
     lamport: bool = typer.Option(False, "--lamport", "-l", help="Print balances in lamports"),
 ) -> None:
+    """Fetch and print SOL and optional token balance for an account."""
     asyncio.run(balance_cmd.run(rpc_url, wallet_address, token_address, lamport, proxies_url))
 
 
@@ -58,6 +67,7 @@ def balance_command(
 def balances_command(
     config_path: Path, print_config: Annotated[bool, typer.Option("--config", "-c", help="Print config and exit")] = False
 ) -> None:
+    """Display SOL and token balances for multiple accounts from a config file."""
     asyncio.run(balances_cmd.run(config_path, print_config))
 
 
@@ -72,6 +82,7 @@ def transfer_command(
     no_confirmation: bool = typer.Option(False, "--no-confirmation", "-nc", help="Do not wait for confirmation"),
     debug: bool = typer.Option(False, "--debug", "-d", help="Print debug info"),
 ) -> None:
+    """Execute SOL or SPL token transfers based on a config file."""
     asyncio.run(
         transfer_cmd.run(
             TransferCmdParams(
@@ -93,6 +104,7 @@ def node_command(
     urls: Annotated[list[str], typer.Argument()],
     proxy: Annotated[str | None, typer.Option("--proxy", "-p", help="Proxy")] = None,
 ) -> None:
+    """Check RPC node availability by fetching block height."""
     asyncio.run(node_cmd.run(urls, proxy))
 
 
@@ -105,11 +117,13 @@ def wallet_mnemonic_command(  # nosec
     words: int = typer.Option(12, "--words", "-w", help="Number of mnemonic words"),
     limit: int = typer.Option(5, "--limit", "-l"),
 ) -> None:
+    """Generate or derive accounts from a mnemonic phrase."""
     mnemonic_cmd.run(mnemonic, passphrase, words, derivation_path, limit)
 
 
 @wallet_app.command(name="keypair", help="Print public, private_base58, private_arr by a private key")
 def keypair_command(private_key: str) -> None:
+    """Print keypair details from a private key."""
     keypair_cmd.run(private_key)
 
 

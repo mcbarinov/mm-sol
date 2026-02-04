@@ -1,3 +1,5 @@
+"""Retry wrappers for Solana RPC calls with node and proxy rotation."""
+
 from mm_result import Result
 from mm_web3 import Nodes, Proxies, retry_with_node_and_proxy
 from solders.solders import Pubkey, Signature
@@ -6,6 +8,7 @@ from mm_sol import rpc, spl_token, transfer
 
 
 async def get_sol_balance(retries: int, nodes: Nodes, proxies: Proxies, *, address: str, timeout: float = 5) -> Result[int]:
+    """Fetch SOL balance in lamports with retries across nodes and proxies."""
     return await retry_with_node_and_proxy(
         retries,
         nodes,
@@ -24,6 +27,7 @@ async def get_token_balance(
     token_account: str | None = None,
     timeout: float = 5,
 ) -> Result[int]:
+    """Fetch SPL token balance with retries across nodes and proxies."""
     return await retry_with_node_and_proxy(
         retries,
         nodes,
@@ -53,6 +57,7 @@ async def transfer_token(
     timeout: float = 10,
     create_token_account_if_not_exists: bool = True,
 ) -> Result[Signature]:
+    """Transfer SPL tokens with retries across nodes and proxies."""
     return await retry_with_node_and_proxy(
         retries,
         nodes,
@@ -83,6 +88,7 @@ async def transfer_sol(
     lamports: int,
     timeout: float = 10,
 ) -> Result[Signature]:
+    """Transfer SOL with retries across nodes and proxies."""
     return await retry_with_node_and_proxy(
         retries,
         nodes,
@@ -100,6 +106,7 @@ async def transfer_sol(
 
 
 async def get_token_decimals(retries: int, nodes: Nodes, proxies: Proxies, *, token: str, timeout: float = 5) -> Result[int]:
+    """Fetch token decimals with retries across nodes and proxies."""
     return await retry_with_node_and_proxy(
         retries,
         nodes,

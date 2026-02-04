@@ -1,6 +1,8 @@
+"""Single account balance query command."""
+
 from decimal import Decimal
 
-import mm_print
+from mm_print import print_json
 from mm_web3 import fetch_proxies
 from pydantic import BaseModel, Field
 
@@ -10,6 +12,8 @@ from mm_sol.cli import cli_utils
 
 
 class HumanReadableBalanceResult(BaseModel):
+    """Balance result with SOL and token values in human-readable decimals."""
+
     sol_balance: Decimal | None
     token_balance: Decimal | None
     token_decimals: int | None
@@ -17,12 +21,15 @@ class HumanReadableBalanceResult(BaseModel):
 
 
 class BalanceResult(BaseModel):
+    """Balance result with SOL and token values in smallest units."""
+
     sol_balance: int | None = None
     token_balance: int | None = None
     token_decimals: int | None = None
     errors: list[str] = Field(default_factory=list)
 
     def to_human_readable(self) -> HumanReadableBalanceResult:
+        """Convert balances from smallest units to human-readable decimals."""
         sol_balance = Decimal(self.sol_balance) / 10**9 if self.sol_balance is not None else None
         token_balance = None
         if self.token_balance is not None and self.token_decimals is not None:
@@ -39,6 +46,7 @@ async def run(
     lamport: bool,
     proxies_url: str | None,
 ) -> None:
+    """Fetch and print SOL and optional token balance for a single account."""
     result = BalanceResult()
 
     rpc_url = cli_utils.public_rpc_url(rpc_url)
@@ -68,6 +76,6 @@ async def run(
             result.errors.append("token_decimals: " + decimals_res.unwrap_err())
 
     if lamport:
-        mm_print.json(result)
+        print_json(result)
     else:
-        mm_print.json(result.to_human_readable())
+        print_json(result.to_human_readable())

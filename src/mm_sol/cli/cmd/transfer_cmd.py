@@ -1,11 +1,12 @@
+"""SOL and SPL token transfer command with multi-route support."""
+
 import asyncio
 import sys
 from pathlib import Path
 from typing import Annotated
 
-import mm_print
 from loguru import logger
-from mm_std import utc_now
+from mm_std import utc
 from mm_web3 import Web3CliConfig
 from mm_web3.account import PrivateKeyMap
 from mm_web3.calcs import calc_decimal_expression
@@ -20,12 +21,14 @@ from solders.signature import Signature
 import mm_sol.retry
 from mm_sol import retry
 from mm_sol.cli import calcs, cli_utils
-from mm_sol.cli.cli_utils import BaseConfigParams
+from mm_sol.cli.cli_utils import BaseConfigParams, fatal
 from mm_sol.cli.validators import Validators
 from mm_sol.converters import lamports_to_sol, to_token
 
 
 class Config(Web3CliConfig):
+    """Transfer command configuration with routes, keys, and value expressions."""
+
     nodes: Annotated[list[str], BeforeValidator(Validators.nodes())]
     transfers: Annotated[list[Transfer], BeforeValidator(Validators.sol_transfers())]
     private_keys: Annotated[PrivateKeyMap, BeforeValidator(Validators.sol_private_keys())]
@@ -41,10 +44,12 @@ class Config(Web3CliConfig):
 
     @property
     def from_addresses(self) -> list[str]:
+        """Return the list of sender addresses from all transfer routes."""
         return [r.from_address for r in self.transfers]
 
     @model_validator(mode="after")  # type: ignore[misc]
-    async def final_validator(self) -> "Config":
+    async def final_validator(self) -> Config:
+        """Validate private keys, transfer values, and fetch token decimals if needed."""
         if not self.private_keys.contains_all_addresses(self.from_addresses):
             raise ValueError("private keys are not set for all addresses")
 
@@ -69,13 +74,15 @@ class Config(Web3CliConfig):
         if self.token:
             res = await mm_sol.retry.get_token_decimals(3, self.nodes, self.proxies, token=self.token)
             if res.is_err():
-                mm_print.exit_with_error(f"can't get decimals for token={self.token}, error={res.unwrap_err()}")
+                fatal(f"can't get decimals for token={self.token}, error={res.unwrap_err()}")
             self.token_decimals = res.unwrap()
 
         return self
 
 
 class TransferCmdParams(BaseConfigParams):
+    """CLI parameters for the transfer command."""
+
     print_balances: bool
     print_transfers: bool
     debug: bool
@@ -85,6 +92,7 @@ class TransferCmdParams(BaseConfigParams):
 
 
 async def run(cmd_params: TransferCmdParams) -> None:
+    """Execute the transfer command: print config/balances/transfers or run transfers."""
     config = await Config.read_toml_config_or_exit_async(cmd_params.config_path)
 
     if cmd_params.print_config_and_exit:
@@ -103,8 +111,9 @@ async def run(cmd_params: TransferCmdParams) -> None:
 
 
 async def _run_transfers(config: Config, cmd_params: TransferCmdParams) -> None:
+    """Execute all configured transfer routes sequentially with optional delays."""
     init_loguru(cmd_params.debug, config.log_debug, config.log_info)
-    logger.info(f"transfer {cmd_params.config_path}: started at {utc_now()} UTC")
+    logger.info(f"transfer {cmd_params.config_path}: started at {utc()} UTC")
     logger.debug(f"config={config.model_dump(exclude={'private_keys'}) | {'version': cli_utils.get_version()}}")
     for i, route in enumerate(config.transfers):
         await _transfer(route, config, cmd_params)
@@ -113,10 +122,11 @@ async def _run_transfers(config: Config, cmd_params: TransferCmdParams) -> None:
             logger.info(f"delay {delay_value} seconds")
             if not cmd_params.emulate:
                 await asyncio.sleep(float(delay_value))
-    logger.info(f"transfer {cmd_params.config_path}: finished at {utc_now()} UTC")
+    logger.info(f"transfer {cmd_params.config_path}: finished at {utc()} UTC")
 
 
 async def _calc_value(transfer: Transfer, config: Config, transfer_sol_fee: int) -> int | None:
+    """Calculate the transfer value in smallest units, resolving balance-based expressions."""
     if config.token:
         value_res = await calcs.calc_token_value_for_address(
             nodes=config.nodes,
@@ -142,7 +152,7 @@ async def _calc_value(transfer: Transfer, config: Config, transfer_sol_fee: int)
 
 
 def _check_value_min_limit(transfer: Transfer, value: int, config: Config) -> bool:
-    """Returns False if the transfer should be skipped."""
+    """Return False if the transfer value is below the configured minimum limit."""
     if config.value_min_limit:
         if config.token:
             value_min_limit = calcs.calc_token_expression(config.value_min_limit, config.token_decimals)
@@ -154,12 +164,14 @@ def _check_value_min_limit(transfer: Transfer, value: int, config: Config) -> bo
 
 
 def _value_with_suffix(value: int, config: Config) -> str:
+    """Format a value with its unit suffix (sol or t)."""
     if config.token:
         return f"{to_token(value, decimals=config.token_decimals, ndigits=config.round_ndigits)}t"
     return f"{lamports_to_sol(value, config.round_ndigits)}sol"
 
 
 async def _send_tx(transfer: Transfer, value: int, config: Config) -> Signature | None:
+    """Submit a SOL or token transfer transaction with retries."""
     logger.debug(f"{transfer.log_prefix}: value={_value_with_suffix(value, config)}")
     if config.token:
         res = await retry.transfer_token(
@@ -191,6 +203,7 @@ async def _send_tx(transfer: Transfer, value: int, config: Config) -> Signature 
 
 
 async def _transfer(transfer: Transfer, config: Config, cmd_params: TransferCmdParams) -> None:
+    """Execute a single transfer route: calculate value, check limits, send, and confirm."""
     transfer_sol_fee = 5000
 
     value = await _calc_value(transfer, config, transfer_sol_fee)
@@ -218,6 +231,7 @@ async def _transfer(transfer: Transfer, config: Config, cmd_params: TransferCmdP
 
 
 def _print_transfers(config: Config) -> None:
+    """Print a table of all configured transfer routes."""
     table = Table("n", "from_address", "to_address", "value", title="transfers")
     for count, transfer in enumerate(config.transfers, start=1):
         table.add_row(str(count), transfer.from_address, transfer.to_address, transfer.value)
@@ -226,6 +240,7 @@ def _print_transfers(config: Config) -> None:
 
 
 async def _print_balances(config: Config) -> None:
+    """Print a live-updating table of SOL and token balances for all transfer routes."""
     if config.token:
         headers = ["n", "from_address", "sol", "t", "to_address", "sol", "t"]
     else:
@@ -259,11 +274,13 @@ async def _print_balances(config: Config) -> None:
 
 
 async def _get_sol_balance_str(address: str, config: Config) -> str:
+    """Fetch SOL balance and return it as a formatted string."""
     res = await retry.get_sol_balance(5, config.nodes, config.proxies, address=address)
     return res.map(lambda ok: str(lamports_to_sol(ok, config.round_ndigits))).value_or_error()
 
 
 async def _get_token_balance_str(address: str, config: Config) -> str:
+    """Fetch token balance and return it as a formatted string."""
     if not config.token:
         raise ValueError("token is not set")
     res = await mm_sol.retry.get_token_balance(5, config.nodes, config.proxies, owner=address, token=config.token)

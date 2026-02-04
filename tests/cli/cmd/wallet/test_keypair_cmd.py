@@ -1,9 +1,12 @@
+"""Tests for keypair CLI command."""
+
 import json
 
 from mm_sol.cli.cli import app
 
 
 def test_new_cmd(cli_runner):
+    """Verify keypair command outputs correct public, base58, and array keys."""
     public = "FkXw3cUycwsMYHAGacfhBJpa31WTvq5bUZNGhCW4GFVD"
     private_base58 = "3JTDggs2wpXWbQoL44XGHWzkAvC2LsfTVcx7gPX1dw7izxQ77oMvnMxCnCHQCGrM1RviAVpPhLexsjJKxqVq9Zqd"
     private_arr = "[115,21,127,168,159,11,95,157,134,159,18,133,4,114,119,129,96,140,193,211,35,139,32,177,172,204,5,2,193,94,194,122,219,42,145,4,32,80,123,141,81,235,64,60,55,47,81,102,41,253,60,85,116,238,173,120,98,38,211,48,253,89,18,196]"  # noqa: E501

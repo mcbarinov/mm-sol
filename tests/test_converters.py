@@ -1,3 +1,5 @@
+"""Tests for SOL/lamports/token conversion utilities."""
+
 from decimal import Decimal
 
 import pytest
@@ -6,16 +8,19 @@ from mm_sol.converters import lamports_to_sol, sol_to_lamports, to_lamports
 
 
 def test_lamports_to_sol():
+    """Verify lamports-to-SOL conversion with rounding."""
     res = lamports_to_sol(272356343007, ndigits=4)
     assert res == Decimal("272.3563")
 
 
 def test_sol_to_lamports():
+    """Verify SOL-to-lamports conversion."""
     res = sol_to_lamports(Decimal("272.35"))
     assert res == 272350000000
 
 
 def test_to_lamports():
+    """Verify to_lamports with int, Decimal, string, and suffix formats."""
     assert to_lamports(123) == 123
     assert to_lamports(Decimal(123)) == 123
     assert to_lamports("123") == 123

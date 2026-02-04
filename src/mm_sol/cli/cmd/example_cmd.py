@@ -1,8 +1,11 @@
+"""Example config display command."""
+
 from pathlib import Path
 
-import mm_print
+from mm_print import print_toml
 
 
 def run(module: str) -> None:
+    """Print the example TOML configuration for the given command module."""
     example_file = Path(Path(__file__).parent.absolute(), "../examples", f"{module}.toml")
-    mm_print.toml(example_file.read_text())
+    print_toml(example_file.read_text())

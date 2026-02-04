@@ -1,3 +1,5 @@
+"""Async Solana JSON-RPC client with HTTP and WebSocket support."""
+
 import json
 from collections.abc import Sequence
 from typing import Any
@@ -15,6 +17,7 @@ async def rpc_call(
     proxy: str | None,
     id_: int = 1,
 ) -> Result[Any]:
+    """Send a JSON-RPC request to a Solana node via HTTP or WebSocket."""
     data = {"jsonrpc": "2.0", "method": method, "params": params, "id": id_}
     if node.startswith("http"):
         return await _http_call(node, data, timeout, proxy)
@@ -22,11 +25,12 @@ async def rpc_call(
 
 
 async def _http_call(node: str, data: dict[str, object], timeout: float, proxy: str | None) -> Result[Any]:
+    """Execute an RPC call over HTTP."""
     res = await http_request(node, method="POST", proxy=proxy, timeout=timeout, json=data)
     if res.is_err():
         return res.to_result_err()
     try:
-        parsed_body = res.parse_json()
+        parsed_body = res.json_body().unwrap("invalid_json")
         err = parsed_body.get("error", {}).get("message", "")
         if err:
             return res.to_result_err(f"service_error: {err}")
@@ -38,6 +42,7 @@ async def _http_call(node: str, data: dict[str, object], timeout: float, proxy: 
 
 
 async def _ws_call(node: str, data: dict[str, object], timeout: float) -> Result[Any]:
+    """Execute an RPC call over WebSocket."""
     response = None
     try:
         async with websockets.connect(node, open_timeout=timeout) as ws:
@@ -57,11 +62,12 @@ async def _ws_call(node: str, data: dict[str, object], timeout: float) -> Result
 
 
 async def get_block_height(node: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
+    """Return the current block height."""
     return await rpc_call(node=node, method="getBlockHeight", params=[], timeout=timeout, proxy=proxy)
 
 
 async def get_balance(node: str, address: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
-    """Returns balance in lamports"""
+    """Return balance in lamports."""
     return (await rpc_call(node=node, method="getBalance", params=[address], timeout=timeout, proxy=proxy)).map(
         lambda r: r["value"]
     )

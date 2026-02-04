@@ -1,3 +1,5 @@
+"""Value expression calculators for SOL and token amounts with optional balance variables."""
+
 from mm_result import Result
 from mm_web3 import Nodes, Proxies
 from mm_web3.calcs import calc_expression_with_vars
@@ -7,16 +9,19 @@ from mm_sol.constants import UNIT_DECIMALS
 
 
 def calc_sol_expression(expression: str, variables: dict[str, int] | None = None) -> int:
+    """Evaluate a SOL expression string into lamports."""
     return calc_expression_with_vars(expression, variables, unit_decimals=UNIT_DECIMALS)
 
 
 def calc_token_expression(expression: str, token_decimals: int, variables: dict[str, int] | None = None) -> int:
+    """Evaluate a token expression string into smallest units."""
     return calc_expression_with_vars(expression, variables, unit_decimals={"t": token_decimals})
 
 
 async def calc_sol_value_for_address(
     *, nodes: Nodes, value_expression: str, address: str, proxies: Proxies, fee: int
 ) -> Result[int]:
+    """Calculate SOL value in lamports for an address, resolving 'balance' variable if used."""
     value_expression = value_expression.lower()
     variables: dict[str, int] | None = None
     if "balance" in value_expression:
@@ -34,6 +39,7 @@ async def calc_sol_value_for_address(
 async def calc_token_value_for_address(
     *, nodes: Nodes, value_expression: str, owner: str, token: str, token_decimals: int, proxies: Proxies
 ) -> Result[int]:
+    """Calculate token value in smallest units for an address, resolving 'balance' variable if used."""
     variables: dict[str, int] | None = None
     value_expression = value_expression.lower()
     if "balance" in value_expression:

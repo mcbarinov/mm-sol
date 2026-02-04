@@ -1,3 +1,5 @@
+"""SPL token balance and metadata queries via Solana RPC."""
+
 from mm_result import Result
 from solana.exceptions import SolanaRpcException
 from solana.rpc.core import RPCException
@@ -14,6 +16,7 @@ async def get_balance(
     timeout: float = 5,
     proxy: str | None = None,
 ) -> Result[int]:
+    """Return the token balance in smallest units for the owner's associated token account."""
     response = None
     try:
         client = get_async_client(node, proxy=proxy, timeout=timeout)
@@ -38,6 +41,7 @@ async def get_balance(
 
 
 async def get_decimals(node: str, token: str, timeout: float = 5, proxy: str | None = None) -> Result[int]:
+    """Return the number of decimals for a token mint."""
     response = None
     try:
         client = get_async_client(node, proxy=proxy, timeout=timeout)

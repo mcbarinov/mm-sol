@@ -1,3 +1,5 @@
+"""Tests for mnemonic CLI command."""
+
 import json
 
 from mm_sol.account import PHANTOM_DERIVATION_PATH
@@ -5,6 +7,7 @@ from mm_sol.cli.cli import app
 
 
 def test_mnemonic_cmd(cli_runner):
+    """Verify mnemonic derivation produces expected accounts."""
     mnemonic = "cotton limit tube replace sister flight double muffin health neutral hill maid"
     passphrase = "my-secret"
     path = PHANTOM_DERIVATION_PATH
@@ -25,6 +28,7 @@ def test_mnemonic_cmd(cli_runner):
 
 
 def test_mnemonic_cmd_generates_different_result(cli_runner):
+    """Verify successive mnemonic generations produce different results."""
     res1 = cli_runner.invoke(app, "wallet mnemonic -l 2")
     data1 = json.loads(res1.stdout)
     assert res1.exit_code == 0
