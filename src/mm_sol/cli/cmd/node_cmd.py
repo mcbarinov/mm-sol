@@ -1,6 +1,6 @@
 """RPC node health check command."""
 
-from mm_print import print_json
+from mm_clikit import print_json
 
 from mm_sol import rpc
 from mm_sol.cli import cli_utils

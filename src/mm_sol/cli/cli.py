@@ -6,17 +6,16 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from mm_print import print_plain
+from mm_clikit import TyperPlus
 
 from mm_sol.account import PHANTOM_DERIVATION_PATH
 
-from . import cli_utils
 from .cmd import balance_cmd, balances_cmd, example_cmd, node_cmd, transfer_cmd
 from .cmd.transfer_cmd import TransferCmdParams
 from .cmd.wallet import keypair_cmd, mnemonic_cmd
 
 """Main CLI application."""
-app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False, add_completion=False)
+app = TyperPlus(package_name="mm-sol", no_args_is_help=True, pretty_exceptions_enable=False, add_completion=False)
 
 """Wallet subcommand group."""
 wallet_app = typer.Typer(
@@ -24,18 +23,6 @@ wallet_app = typer.Typer(
 )
 app.add_typer(wallet_app, name="wallet")
 app.add_typer(wallet_app, name="w", hidden=True)
-
-
-def version_callback(value: bool) -> None:
-    """Print version and exit when --version is passed."""
-    if value:
-        print_plain(f"mm-sol: {cli_utils.get_version()}")
-        raise typer.Exit
-
-
-@app.callback()
-def main(_version: bool = typer.Option(None, "--version", callback=version_callback, is_eager=True)) -> None:
-    """Solana CLI tool."""
 
 
 class ConfigExample(StrEnum):

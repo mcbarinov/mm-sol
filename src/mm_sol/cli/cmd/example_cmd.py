@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from mm_print import print_toml
+from mm_clikit import print_toml
 
 
 def run(module: str) -> None:

@@ -5,17 +5,16 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Annotated, Any
 
-from mm_print import print_json
-from mm_web3 import ConfigValidators, Web3CliConfig
+from mm_clikit import TomlConfig, fatal, print_json
+from mm_web3 import ConfigValidators
 from pydantic import BeforeValidator, Field
 
 import mm_sol.retry
 from mm_sol import converters, retry
-from mm_sol.cli.cli_utils import fatal
 from mm_sol.cli.validators import Validators
 
 
-class Config(Web3CliConfig):
+class Config(TomlConfig):
     """Configuration for the balances command."""
 
     accounts: Annotated[list[str], BeforeValidator(Validators.sol_addresses(unique=True))]
@@ -31,7 +30,7 @@ class Config(Web3CliConfig):
 
 async def run(config_path: Path, print_config: bool) -> None:
     """Fetch and print SOL and token balances for all configured accounts."""
-    config = Config.read_toml_config_or_exit(config_path)
+    config = Config.load_or_exit(config_path)
     if print_config:
         config.print_and_exit()
 

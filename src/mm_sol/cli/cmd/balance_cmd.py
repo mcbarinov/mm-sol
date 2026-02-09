@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from mm_print import print_json
+from mm_clikit import print_json
 from mm_web3 import fetch_proxies
 from pydantic import BaseModel, Field
 

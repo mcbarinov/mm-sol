@@ -1,13 +1,14 @@
 """SOL and SPL token transfer command with multi-route support."""
 
 import asyncio
+import importlib.metadata
 import sys
 from pathlib import Path
 from typing import Annotated
 
 from loguru import logger
+from mm_clikit import TomlConfig, fatal
 from mm_std import utc
-from mm_web3 import Web3CliConfig
 from mm_web3.account import PrivateKeyMap
 from mm_web3.calcs import calc_decimal_expression
 from mm_web3.log import init_loguru
@@ -21,12 +22,12 @@ from solders.signature import Signature
 import mm_sol.retry
 from mm_sol import retry
 from mm_sol.cli import calcs, cli_utils
-from mm_sol.cli.cli_utils import BaseConfigParams, fatal
+from mm_sol.cli.cli_utils import BaseConfigParams
 from mm_sol.cli.validators import Validators
 from mm_sol.converters import lamports_to_sol, to_token
 
 
-class Config(Web3CliConfig):
+class Config(TomlConfig):
     """Transfer command configuration with routes, keys, and value expressions."""
 
     nodes: Annotated[list[str], BeforeValidator(Validators.nodes())]
@@ -47,9 +48,9 @@ class Config(Web3CliConfig):
         """Return the list of sender addresses from all transfer routes."""
         return [r.from_address for r in self.transfers]
 
-    @model_validator(mode="after")  # type: ignore[misc]
-    async def final_validator(self) -> Config:
-        """Validate private keys, transfer values, and fetch token decimals if needed."""
+    @model_validator(mode="after")
+    def final_validator(self) -> Config:
+        """Validate private keys, transfer values, and token/sol expressions."""
         if not self.private_keys.contains_all_addresses(self.from_addresses):
             raise ValueError("private keys are not set for all addresses")
 
@@ -71,12 +72,6 @@ class Config(Web3CliConfig):
             if self.value_min_limit:
                 Validators.valid_sol_expression()(self.value_min_limit)
 
-        if self.token:
-            res = await mm_sol.retry.get_token_decimals(3, self.nodes, self.proxies, token=self.token)
-            if res.is_err():
-                fatal(f"can't get decimals for token={self.token}, error={res.unwrap_err()}")
-            self.token_decimals = res.unwrap()
-
         return self
 
 
@@ -93,11 +88,17 @@ class TransferCmdParams(BaseConfigParams):
 
 async def run(cmd_params: TransferCmdParams) -> None:
     """Execute the transfer command: print config/balances/transfers or run transfers."""
-    config = await Config.read_toml_config_or_exit_async(cmd_params.config_path)
+    config = Config.load_or_exit(cmd_params.config_path)
 
     if cmd_params.print_config_and_exit:
-        cli_utils.print_config(config, exclude={"private_keys"}, count=None if cmd_params.debug else {"proxies"})
-        sys.exit(0)
+        config.print_and_exit(exclude={"private_keys"})
+
+    # Fetch token decimals (async, can't be done in sync validator)
+    if config.token:
+        res = await mm_sol.retry.get_token_decimals(3, config.nodes, config.proxies, token=config.token)
+        if res.is_err():
+            fatal(f"can't get decimals for token={config.token}, error={res.unwrap_err()}")
+        config.token_decimals = res.unwrap()
 
     if cmd_params.print_transfers:
         _print_transfers(config)
@@ -114,7 +115,8 @@ async def _run_transfers(config: Config, cmd_params: TransferCmdParams) -> None:
     """Execute all configured transfer routes sequentially with optional delays."""
     init_loguru(cmd_params.debug, config.log_debug, config.log_info)
     logger.info(f"transfer {cmd_params.config_path}: started at {utc()} UTC")
-    logger.debug(f"config={config.model_dump(exclude={'private_keys'}) | {'version': cli_utils.get_version()}}")
+    version = importlib.metadata.version("mm-sol")
+    logger.debug(f"config={config.model_dump(exclude={'private_keys'}) | {'version': version}}")
     for i, route in enumerate(config.transfers):
         await _transfer(route, config, cmd_params)
         if config.delay is not None and i < len(config.transfers) - 1:

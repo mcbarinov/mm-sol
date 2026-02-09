@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from mm_print import print_json
+from mm_clikit import print_json
 
 from mm_sol.account import (
     get_private_key_arr_str,
